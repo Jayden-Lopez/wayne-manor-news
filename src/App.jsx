@@ -28,26 +28,117 @@ const CATEGORY_INFO = {
   travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' }
 };
 
-// Fallback images by category
+// Multiple fallback images per category for variety
 const CATEGORY_IMAGES = {
-  trumpWatch: 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop',
-  politics: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop',
-  ai: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
-  tech: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=250&fit=crop',
-  smartHome: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop',
-  homelab: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
-  sports: 'https://images.unsplash.com/photo-1461896836934- voices?w=400&h=250&fit=crop',
-  crime: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop',
-  recipes: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=250&fit=crop',
-  music: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop',
-  health: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop',
-  animation: 'https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=400&h=250&fit=crop',
-  bjj: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&h=250&fit=crop',
-  gaming: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=250&fit=crop',
-  soccer: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=250&fit=crop',
-  roblox: 'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop',
-  travel: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop'
+  trumpWatch: [
+    'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1523995462485-3d171b5c8fa9?w=400&h=250&fit=crop'
+  ],
+  politics: [
+    'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1555848962-6e79363ec58f?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=400&h=250&fit=crop'
+  ],
+  ai: [
+    'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1555255707-c07966088b7b?w=400&h=250&fit=crop'
+  ],
+  tech: [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=250&fit=crop'
+  ],
+  smartHome: [
+    'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=250&fit=crop'
+  ],
+  homelab: [
+    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1600267185393-e158a98703de?w=400&h=250&fit=crop'
+  ],
+  sports: [
+    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=400&h=250&fit=crop'
+  ],
+  crime: [
+    'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1436450412740-6b988f486c6b?w=400&h=250&fit=crop'
+  ],
+  recipes: [
+    'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=250&fit=crop'
+  ],
+  music: [
+    'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop'
+  ],
+  health: [
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=250&fit=crop'
+  ],
+  animation: [
+    'https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=250&fit=crop'
+  ],
+  bjj: [
+    'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=250&fit=crop'
+  ],
+  gaming: [
+    'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&h=250&fit=crop'
+  ],
+  soccer: [
+    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400&h=250&fit=crop'
+  ],
+  roblox: [
+    'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=250&fit=crop'
+  ],
+  travel: [
+    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=250&fit=crop'
+  ]
 };
+
+const DEFAULT_IMAGES = [
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=250&fit=crop',
+  'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&h=250&fit=crop',
+  'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=250&fit=crop'
+];
+
+// Hash function to pick consistent but varied images based on title
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+function getFallbackImage(category, title) {
+  const images = CATEGORY_IMAGES[category] || DEFAULT_IMAGES;
+  const index = hashString(title || 'default') % images.length;
+  return images[index];
+}
 
 function App() {
   const { profile } = useParams();
@@ -58,7 +149,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('darkMode');
-      return saved !== null ? saved === 'true' : true; // Default to dark
+      return saved !== null ? saved === 'true' : true;
     }
     return true;
   });
@@ -155,7 +246,6 @@ function App() {
             </div>
             
             <div className="flex items-center gap-2">
-              {/* Profile Switcher */}
               <select
                 value={currentProfile}
                 onChange={(e) => navigate(`/${e.target.value}`)}
@@ -166,7 +256,6 @@ function App() {
                 ))}
               </select>
               
-              {/* Saved Toggle */}
               <button
                 onClick={() => setShowSaved(!showSaved)}
                 className={`p-2 rounded-lg border ${borderColor} ${showSaved ? 'bg-yellow-500 text-white' : cardBg}`}
@@ -175,7 +264,6 @@ function App() {
                 ⭐ {savedArticles.length}
               </button>
               
-              {/* Dark Mode Toggle */}
               <button
                 onClick={() => setDarkMode(!darkMode)}
                 className={`p-2 rounded-lg border ${borderColor} ${cardBg}`}
@@ -186,7 +274,6 @@ function App() {
             </div>
           </div>
           
-          {/* Search */}
           <div className="mt-4 flex gap-2">
             <input
               type="text"
@@ -197,7 +284,6 @@ function App() {
             />
           </div>
           
-          {/* Category Filter */}
           <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setSelectedCategory('all')}
@@ -230,7 +316,6 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-6">
         {loading && (
           <div className="text-center py-12">
@@ -251,14 +336,12 @@ function App() {
 
         {!loading && !error && (
           <>
-            {/* Last Updated */}
             {data?.generatedAt && (
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} mb-4`}>
                 Last updated: {new Date(data.generatedAt).toLocaleString()}
               </p>
             )}
 
-            {/* Trump Watch Section */}
             {trumpArticles.length > 0 && selectedCategory === 'all' && (
               <section className="mb-8">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -280,7 +363,6 @@ function App() {
               </section>
             )}
 
-            {/* Other Articles */}
             <section>
               {selectedCategory === 'all' && trumpArticles.length > 0 && (
                 <h2 className="text-xl font-bold mb-4">More Stories</h2>
@@ -308,7 +390,6 @@ function App() {
         )}
       </main>
 
-      {/* Footer */}
       <footer className={`${cardBg} border-t ${borderColor} py-6 mt-12`}>
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -337,10 +418,13 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
   const borderColor = darkMode ? 'border-gray-700' : 'border-gray-200';
   const catInfo = CATEGORY_INFO[article.category] || { name: article.category, emoji: '📰', color: '#6b7280' };
   
-  // Get image - use article image or fallback
-  const imageUrl = article.image || CATEGORY_IMAGES[article.category] || CATEGORY_IMAGES.politics;
+  // Use article image if available, otherwise get varied fallback based on title
+  const imageUrl = article.image || getFallbackImage(article.category, article.title);
   
   const [imgError, setImgError] = useState(false);
+  
+  // Get a different fallback if the main image fails
+  const fallbackUrl = getFallbackImage(article.category, article.title + '_fallback');
   
   return (
     <article 
@@ -348,30 +432,26 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
         featured ? 'md:col-span-2 lg:col-span-2' : ''
       } ${article.isTrumpRelated ? 'ring-2 ring-red-600' : ''}`}
     >
-      {/* Image */}
       <div className={`relative ${featured ? 'h-48' : 'h-36'} overflow-hidden bg-gray-700`}>
         <img 
-          src={imgError ? CATEGORY_IMAGES[article.category] || CATEGORY_IMAGES.politics : imageUrl}
+          src={imgError ? fallbackUrl : imageUrl}
           alt=""
           className="w-full h-full object-cover"
           onError={() => setImgError(true)}
           loading="lazy"
         />
-        {/* Category Badge */}
         <span 
           className="absolute top-2 left-2 text-xs px-2 py-1 rounded-full text-white font-medium"
           style={{ backgroundColor: catInfo.color }}
         >
           {catInfo.emoji} {catInfo.name}
         </span>
-        {/* Save Button */}
         <button 
           onClick={(e) => { e.preventDefault(); onToggleSave(); }}
           className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70 transition-colors"
         >
           {isSaved ? '⭐' : '☆'}
         </button>
-        {/* Trump Badge */}
         {article.isTrumpRelated && (
           <span className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded-full bg-red-600 text-white font-bold animate-pulse">
             🔴 TRUMP
@@ -379,7 +459,6 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
         )}
       </div>
       
-      {/* Content */}
       <div className="p-4">
         <a href={article.link} target="_blank" rel="noopener noreferrer" className="block group">
           <h3 className={`font-semibold mb-2 group-hover:text-blue-500 transition-colors line-clamp-2 ${
