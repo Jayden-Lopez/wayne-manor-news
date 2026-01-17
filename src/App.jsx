@@ -15,21 +15,20 @@ const CATEGORY_INFO = {
   tech: { name: 'Technology', emoji: '💻', color: '#6366f1' },
   smartHome: { name: 'Smart Home', emoji: '🏠', color: '#14b8a6' },
   homelab: { name: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
-  socialMedia: { name: 'Trending Videos', emoji: '📱', color: '#ff0050' },
-  sports: { name: 'Sports', emoji: '⚾', color: '#ef4444' },
-  crime: { name: 'Crime & Justice', emoji: '⚖️', color: '#64748b' },
   recipes: { name: 'Recipes', emoji: '🍳', color: '#f97316' },
-  music: { name: 'Music', emoji: '🎵', color: '#a855f7' },
   health: { name: 'Health', emoji: '💪', color: '#22c55e' },
+  travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' },
   animation: { name: 'Animation', emoji: '🎬', color: '#e11d48' },
   bjj: { name: 'BJJ & MMA', emoji: '🥋', color: '#0ea5e9' },
   gaming: { name: 'Gaming', emoji: '🎮', color: '#8b5cf6' },
   soccer: { name: 'Soccer', emoji: '⚽', color: '#16a34a' },
   roblox: { name: 'Roblox', emoji: '🎲', color: '#ef4444' },
-  travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' }
+  socialMedia: { name: 'Trending Videos', emoji: '📱', color: '#ff0050' }
 };
 
-// Fallback images - only used if article has no image
+// Category order - socialMedia (Trending Videos) LAST
+const CATEGORY_ORDER = ['politics', 'ai', 'tech', 'smartHome', 'homelab', 'recipes', 'health', 'travel', 'animation', 'bjj', 'gaming', 'soccer', 'roblox', 'socialMedia'];
+
 const CATEGORY_IMAGES = {
   trumpWatch: [
     'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop',
@@ -67,30 +66,20 @@ const CATEGORY_IMAGES = {
     'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1616469829581-73993eb86b02?w=400&h=250&fit=crop'
   ],
-  sports: [
-    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=400&h=250&fit=crop'
-  ],
-  crime: [
-    'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1436450412740-6b988f486c6b?w=400&h=250&fit=crop'
-  ],
   recipes: [
     'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1547592180-85f173990554?w=400&h=250&fit=crop'
   ],
-  music: [
-    'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop'
-  ],
   health: [
     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=250&fit=crop'
+  ],
+  travel: [
+    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=250&fit=crop'
   ],
   animation: [
     'https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=400&h=250&fit=crop',
@@ -116,11 +105,6 @@ const CATEGORY_IMAGES = {
     'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=250&fit=crop'
-  ],
-  travel: [
-    'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=250&fit=crop'
   ]
 };
 
@@ -170,6 +154,9 @@ function App() {
 
   const currentProfile = profile || 'jae';
   const profileInfo = PROFILES[currentProfile] || PROFILES.jae;
+  
+  // ONLY Jae gets profile switcher
+  const isJae = currentProfile === 'jae';
 
   useEffect(() => {
     fetchData();
@@ -227,7 +214,13 @@ function App() {
   const trumpArticles = filteredArticles.filter(a => a.isTrumpRelated);
   const otherArticles = filteredArticles.filter(a => !a.isTrumpRelated);
 
-  const categories = [...new Set(articles.map(a => a.category))];
+  // Sort categories with Trending Videos (socialMedia) LAST
+  const rawCategories = [...new Set(articles.map(a => a.category))];
+  const categories = rawCategories.sort((a, b) => {
+    const orderA = CATEGORY_ORDER.indexOf(a);
+    const orderB = CATEGORY_ORDER.indexOf(b);
+    return (orderA === -1 ? 999 : orderA) - (orderB === -1 ? 999 : orderB);
+  });
 
   const bgColor = darkMode ? 'bg-gray-900' : 'bg-gray-50';
   const textColor = darkMode ? 'text-white' : 'text-gray-900';
@@ -251,15 +244,18 @@ function App() {
             </div>
             
             <div className="flex items-center gap-2">
-              <select
-                value={currentProfile}
-                onChange={(e) => navigate(`/${e.target.value}`)}
-                className={`px-3 py-2 rounded-lg border ${borderColor} ${cardBg} text-sm`}
-              >
-                {Object.entries(PROFILES).map(([key, p]) => (
-                  <option key={key} value={key}>{p.emoji} {p.name}</option>
-                ))}
-              </select>
+              {/* Profile Switcher - ONLY for Jae */}
+              {isJae && (
+                <select
+                  value={currentProfile}
+                  onChange={(e) => navigate(`/${e.target.value}`)}
+                  className={`px-3 py-2 rounded-lg border ${borderColor} ${cardBg} text-sm`}
+                >
+                  {Object.entries(PROFILES).map(([key, p]) => (
+                    <option key={key} value={key}>{p.emoji} {p.name}</option>
+                  ))}
+                </select>
+              )}
               
               <button
                 onClick={() => setShowSaved(!showSaved)}
@@ -400,18 +396,6 @@ function App() {
           <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             🦇 Wayne Manor News Hub • Updated every 30 minutes
           </p>
-          <div className="mt-2 flex justify-center gap-4">
-            {Object.entries(PROFILES).map(([key, p]) => (
-              <Link 
-                key={key}
-                to={`/${key}`}
-                className={`text-sm ${currentProfile === key ? 'font-bold' : ''} hover:underline`}
-                style={{ color: p.color }}
-              >
-                {p.emoji} {p.name}
-              </Link>
-            ))}
-          </div>
         </div>
       </footer>
     </div>
@@ -423,7 +407,6 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
   const borderColor = darkMode ? 'border-gray-700' : 'border-gray-200';
   const catInfo = CATEGORY_INFO[article.category] || { name: article.category, emoji: '📰', color: '#6b7280' };
   
-  // Use article image (should always have one now from n8n), fallback just in case
   const imageUrl = article.image || getFallbackImage(article.category, article.title);
   
   const [imgError, setImgError] = useState(false);
