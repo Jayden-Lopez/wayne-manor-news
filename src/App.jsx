@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const PROFILES = {
   jae: { name: 'Jae', emoji: '👨‍💻', color: '#2563eb' },
@@ -10,8 +10,9 @@ const PROFILES = {
 
 const CATEGORY_INFO = {
   trumpWatch: { name: 'Trump Watch', emoji: '🔴', color: '#dc2626' },
-  worldNews: { name: 'World News', emoji: '🌍', color: '#0369a1' },
   politics: { name: 'Politics', emoji: '🏛️', color: '#6b7280' },
+  worldNews: { name: 'World News', emoji: '🌍', color: '#0369a1' },
+  movies: { name: 'Movies', emoji: '🎬', color: '#7c3aed' },
   ai: { name: 'AI & Tech', emoji: '🤖', color: '#3b82f6' },
   tech: { name: 'Technology', emoji: '💻', color: '#6366f1' },
   smartHome: { name: 'Smart Home', emoji: '🏠', color: '#14b8a6' },
@@ -29,12 +30,14 @@ const CATEGORY_INFO = {
   socialMedia: { name: 'Trending Videos', emoji: '📱', color: '#ff0050' }
 };
 
-const CATEGORY_ORDER = ['worldNews', 'politics', 'ai', 'tech', 'smartHome', 'homelab', 'sports', 'music', 'recipes', 'health', 'travel', 'animation', 'bjj', 'gaming', 'soccer', 'roblox', 'socialMedia'];
+// POLITICS FIRST, then others, socialMedia LAST
+const CATEGORY_ORDER = ['politics', 'worldNews', 'movies', 'ai', 'tech', 'smartHome', 'homelab', 'sports', 'music', 'recipes', 'health', 'travel', 'animation', 'bjj', 'gaming', 'soccer', 'roblox', 'socialMedia'];
 
 const CATEGORY_IMAGES = {
   trumpWatch: ['https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop'],
-  worldNews: ['https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?w=400&h=250&fit=crop'],
   politics: ['https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1555848962-6e79363ec58f?w=400&h=250&fit=crop'],
+  worldNews: ['https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?w=400&h=250&fit=crop'],
+  movies: ['https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=250&fit=crop'],
   ai: ['https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=250&fit=crop'],
   tech: ['https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=250&fit=crop'],
   smartHome: ['https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop'],
@@ -128,21 +131,30 @@ function App() {
   function isSaved(article) { return savedArticles.some(a => a.link === article.link); }
 
   const articles = showSaved ? savedArticles : (data?.articles || []);
-  const filteredArticles = articles.filter(a => {
-    const matchesSearch = !searchTerm || 
-      a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  
+  // Filter by search
+  const searchFiltered = articles.filter(a => {
+    if (!searchTerm) return true;
+    return a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || a.category === selectedCategory;
-    return matchesSearch && matchesCategory;
   });
 
-  const trumpArticles = filteredArticles.filter(a => a.isTrumpRelated);
-  const otherArticles = filteredArticles.filter(a => !a.isTrumpRelated);
-  const categories = [...new Set(articles.map(a => a.category))].sort((a, b) => {
+  // Get categories sorted (politics first)
+  const rawCategories = [...new Set(articles.map(a => a.category))];
+  const categories = rawCategories.sort((a, b) => {
     const orderA = CATEGORY_ORDER.indexOf(a);
     const orderB = CATEGORY_ORDER.indexOf(b);
     return (orderA === -1 ? 999 : orderA) - (orderB === -1 ? 999 : orderB);
   });
+
+  // For "All" view: group by category, show top 3 each
+  const trumpArticles = searchFiltered.filter(a => a.isTrumpRelated);
+  
+  // Group articles by category for "All" view
+  const articlesByCategory = {};
+  for (const cat of categories) {
+    articlesByCategory[cat] = searchFiltered.filter(a => a.category === cat && !a.isTrumpRelated).slice(0, 3);
+  }
 
   const bgColor = darkMode ? 'bg-gray-900' : 'bg-gray-50';
   const textColor = darkMode ? 'text-white' : 'text-gray-900';
@@ -246,34 +258,77 @@ function App() {
               </p>
             )}
 
-            {trumpArticles.length > 0 && selectedCategory === 'all' && (
-              <section className="mb-8">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <span className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
-                  Trump Watch
-                </h2>
+            {/* SPECIFIC CATEGORY VIEW - Show all articles for that category */}
+            {selectedCategory !== 'all' && (
+              <section>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {trumpArticles.slice(0, 6).map((article, i) => (
+                  {searchFiltered.filter(a => a.category === selectedCategory).map((article, i) => (
                     <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} featured={i === 0} />
                   ))}
                 </div>
+                {searchFiltered.filter(a => a.category === selectedCategory).length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="text-4xl">📭</div>
+                    <p className="mt-4">No articles found</p>
+                  </div>
+                )}
               </section>
             )}
 
-            <section>
-              {selectedCategory === 'all' && trumpArticles.length > 0 && <h2 className="text-xl font-bold mb-4">More Stories</h2>}
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {(selectedCategory === 'all' ? otherArticles : filteredArticles).map((article, i) => (
-                  <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} />
-                ))}
-              </div>
-            </section>
+            {/* ALL VIEW - Trump Watch + Top 3 per category */}
+            {selectedCategory === 'all' && (
+              <>
+                {/* Trump Watch Section */}
+                {trumpArticles.length > 0 && (
+                  <section className="mb-8">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <span className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
+                      Trump Watch
+                    </h2>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {trumpArticles.slice(0, 3).map((article, i) => (
+                        <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} featured={i === 0} />
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-            {filteredArticles.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-4xl">📭</div>
-                <p className="mt-4">No articles found</p>
-              </div>
+                {/* Categories - Top 3 each */}
+                {categories.map(cat => {
+                  const catArticles = articlesByCategory[cat] || [];
+                  if (catArticles.length === 0) return null;
+                  const info = CATEGORY_INFO[cat] || { name: cat, emoji: '📰', color: '#6b7280' };
+                  
+                  return (
+                    <section key={cat} className="mb-8">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                          <span>{info.emoji}</span>
+                          {info.name}
+                        </h2>
+                        <button
+                          onClick={() => setSelectedCategory(cat)}
+                          className={`text-sm px-3 py-1 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
+                        >
+                          See all →
+                        </button>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {catArticles.map((article, i) => (
+                          <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+
+                {Object.values(articlesByCategory).flat().length === 0 && trumpArticles.length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="text-4xl">📭</div>
+                    <p className="mt-4">No articles found</p>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
