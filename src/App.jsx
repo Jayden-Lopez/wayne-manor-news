@@ -28,6 +28,27 @@ const CATEGORY_INFO = {
   travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' }
 };
 
+// Fallback images by category
+const CATEGORY_IMAGES = {
+  trumpWatch: 'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop',
+  politics: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop',
+  ai: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop',
+  tech: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=250&fit=crop',
+  smartHome: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop',
+  homelab: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
+  sports: 'https://images.unsplash.com/photo-1461896836934- voices?w=400&h=250&fit=crop',
+  crime: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop',
+  recipes: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=250&fit=crop',
+  music: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop',
+  health: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop',
+  animation: 'https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=400&h=250&fit=crop',
+  bjj: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&h=250&fit=crop',
+  gaming: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=250&fit=crop',
+  soccer: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=250&fit=crop',
+  roblox: 'https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop',
+  travel: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop'
+};
+
 function App() {
   const { profile } = useParams();
   const navigate = useNavigate();
@@ -36,9 +57,10 @@ function App() {
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('darkMode') === 'true';
+      const saved = localStorage.getItem('darkMode');
+      return saved !== null ? saved === 'true' : true; // Default to dark
     }
-    return false;
+    return true;
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [savedArticles, setSavedArticles] = useState(() => {
@@ -315,42 +337,63 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
   const borderColor = darkMode ? 'border-gray-700' : 'border-gray-200';
   const catInfo = CATEGORY_INFO[article.category] || { name: article.category, emoji: '📰', color: '#6b7280' };
   
+  // Get image - use article image or fallback
+  const imageUrl = article.image || CATEGORY_IMAGES[article.category] || CATEGORY_IMAGES.politics;
+  
+  const [imgError, setImgError] = useState(false);
+  
   return (
     <article 
-      className={`${cardBg} border ${borderColor} rounded-xl overflow-hidden hover:shadow-lg transition-shadow ${
+      className={`${cardBg} border ${borderColor} rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${
         featured ? 'md:col-span-2 lg:col-span-2' : ''
-      } ${article.isTrumpRelated ? 'border-l-4 border-l-red-600' : ''}`}
+      } ${article.isTrumpRelated ? 'ring-2 ring-red-600' : ''}`}
     >
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span 
-            className="text-xs px-2 py-1 rounded-full text-white"
-            style={{ backgroundColor: catInfo.color }}
-          >
-            {catInfo.emoji} {catInfo.name}
+      {/* Image */}
+      <div className={`relative ${featured ? 'h-48' : 'h-36'} overflow-hidden bg-gray-700`}>
+        <img 
+          src={imgError ? CATEGORY_IMAGES[article.category] || CATEGORY_IMAGES.politics : imageUrl}
+          alt=""
+          className="w-full h-full object-cover"
+          onError={() => setImgError(true)}
+          loading="lazy"
+        />
+        {/* Category Badge */}
+        <span 
+          className="absolute top-2 left-2 text-xs px-2 py-1 rounded-full text-white font-medium"
+          style={{ backgroundColor: catInfo.color }}
+        >
+          {catInfo.emoji} {catInfo.name}
+        </span>
+        {/* Save Button */}
+        <button 
+          onClick={(e) => { e.preventDefault(); onToggleSave(); }}
+          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70 transition-colors"
+        >
+          {isSaved ? '⭐' : '☆'}
+        </button>
+        {/* Trump Badge */}
+        {article.isTrumpRelated && (
+          <span className="absolute bottom-2 left-2 text-xs px-2 py-1 rounded-full bg-red-600 text-white font-bold animate-pulse">
+            🔴 TRUMP
           </span>
-          <button 
-            onClick={onToggleSave}
-            className="text-lg hover:scale-110 transition-transform"
-          >
-            {isSaved ? '⭐' : '☆'}
-          </button>
-        </div>
-        
+        )}
+      </div>
+      
+      {/* Content */}
+      <div className="p-4">
         <a href={article.link} target="_blank" rel="noopener noreferrer" className="block group">
-          <h3 className={`font-semibold mb-2 group-hover:text-blue-500 transition-colors ${
+          <h3 className={`font-semibold mb-2 group-hover:text-blue-500 transition-colors line-clamp-2 ${
             featured ? 'text-lg' : 'text-base'
           }`}>
-            {article.isTrumpRelated && <span className="text-red-600">🔴 </span>}
             {article.title}
           </h3>
-          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} line-clamp-3`}>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} line-clamp-2`}>
             {article.description}
           </p>
         </a>
         
         <div className={`mt-3 flex items-center justify-between text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-          <span>{article.source}</span>
+          <span className="font-medium">{article.source}</span>
           <span>{new Date(article.pubDate).toLocaleDateString()}</span>
         </div>
       </div>
