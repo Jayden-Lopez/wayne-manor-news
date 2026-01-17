@@ -15,6 +15,7 @@ const CATEGORY_INFO = {
   tech: { name: 'Technology', emoji: '💻', color: '#6366f1' },
   smartHome: { name: 'Smart Home', emoji: '🏠', color: '#14b8a6' },
   homelab: { name: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
+  socialMedia: { name: 'Trending Videos', emoji: '📱', color: '#ff0050' },
   sports: { name: 'Sports', emoji: '⚾', color: '#ef4444' },
   crime: { name: 'Crime & Justice', emoji: '⚖️', color: '#64748b' },
   recipes: { name: 'Recipes', emoji: '🍳', color: '#f97316' },
@@ -28,7 +29,7 @@ const CATEGORY_INFO = {
   travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' }
 };
 
-// Multiple fallback images per category for variety
+// Fallback images - only used if article has no image
 const CATEGORY_IMAGES = {
   trumpWatch: [
     'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop',
@@ -53,13 +54,18 @@ const CATEGORY_IMAGES = {
   smartHome: [
     'https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=250&fit=crop'
+    'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&h=250&fit=crop'
   ],
   homelab: [
     'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1600267185393-e158a98703de?w=400&h=250&fit=crop'
+  ],
+  socialMedia: [
+    'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1616469829581-73993eb86b02?w=400&h=250&fit=crop'
   ],
   sports: [
     'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=250&fit=crop',
@@ -124,7 +130,6 @@ const DEFAULT_IMAGES = [
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=400&h=250&fit=crop'
 ];
 
-// Hash function to pick consistent but varied images based on title
 function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -418,12 +423,10 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
   const borderColor = darkMode ? 'border-gray-700' : 'border-gray-200';
   const catInfo = CATEGORY_INFO[article.category] || { name: article.category, emoji: '📰', color: '#6b7280' };
   
-  // Use article image if available, otherwise get varied fallback based on title
+  // Use article image (should always have one now from n8n), fallback just in case
   const imageUrl = article.image || getFallbackImage(article.category, article.title);
   
   const [imgError, setImgError] = useState(false);
-  
-  // Get a different fallback if the main image fails
   const fallbackUrl = getFallbackImage(article.category, article.title + '_fallback');
   
   return (
