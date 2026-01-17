@@ -10,11 +10,14 @@ const PROFILES = {
 
 const CATEGORY_INFO = {
   trumpWatch: { name: 'Trump Watch', emoji: '🔴', color: '#dc2626' },
+  worldNews: { name: 'World News', emoji: '🌍', color: '#0369a1' },
   politics: { name: 'Politics', emoji: '🏛️', color: '#6b7280' },
   ai: { name: 'AI & Tech', emoji: '🤖', color: '#3b82f6' },
   tech: { name: 'Technology', emoji: '💻', color: '#6366f1' },
   smartHome: { name: 'Smart Home', emoji: '🏠', color: '#14b8a6' },
   homelab: { name: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
+  sports: { name: 'Sports', emoji: '⚾', color: '#dc2626' },
+  music: { name: 'Music', emoji: '🎵', color: '#a855f7' },
   recipes: { name: 'Recipes', emoji: '🍳', color: '#f97316' },
   health: { name: 'Health', emoji: '💪', color: '#22c55e' },
   travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' },
@@ -27,13 +30,18 @@ const CATEGORY_INFO = {
 };
 
 // Category order - socialMedia (Trending Videos) LAST
-const CATEGORY_ORDER = ['politics', 'ai', 'tech', 'smartHome', 'homelab', 'recipes', 'health', 'travel', 'animation', 'bjj', 'gaming', 'soccer', 'roblox', 'socialMedia'];
+const CATEGORY_ORDER = ['worldNews', 'politics', 'ai', 'tech', 'smartHome', 'homelab', 'sports', 'music', 'recipes', 'health', 'travel', 'animation', 'bjj', 'gaming', 'soccer', 'roblox', 'socialMedia'];
 
 const CATEGORY_IMAGES = {
   trumpWatch: [
     'https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1523995462485-3d171b5c8fa9?w=400&h=250&fit=crop'
+  ],
+  worldNews: [
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1494145904049-0dca59b4bbad?w=400&h=250&fit=crop'
   ],
   politics: [
     'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop',
@@ -59,6 +67,16 @@ const CATEGORY_IMAGES = {
     'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1597852074816-d933c7d2b988?w=400&h=250&fit=crop',
     'https://images.unsplash.com/photo-1600267185393-e158a98703de?w=400&h=250&fit=crop'
+  ],
+  sports: [
+    'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=250&fit=crop'
+  ],
+  music: [
+    'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=250&fit=crop'
   ],
   socialMedia: [
     'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop',
