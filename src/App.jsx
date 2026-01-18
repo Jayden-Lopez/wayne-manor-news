@@ -9,50 +9,92 @@ const PROFILES = {
 };
 
 const CATEGORY_INFO = {
+  // Shared
   trumpWatch: { name: 'Trump Watch', emoji: '🔴', color: '#dc2626' },
   politics: { name: 'Politics', emoji: '🏛️', color: '#6b7280' },
   worldNews: { name: 'World News', emoji: '🌍', color: '#0369a1' },
-  movies: { name: 'Movies', emoji: '🎬', color: '#7c3aed' },
-  ai: { name: 'AI & Tech', emoji: '🤖', color: '#3b82f6' },
-  tech: { name: 'Technology', emoji: '💻', color: '#6366f1' },
+  trending: { name: 'Trending Videos', emoji: '📱', color: '#ff0050' },
+  
+  // Jae
+  aiTech: { name: 'AI & Tech', emoji: '🤖', color: '#3b82f6' },
   smartHome: { name: 'Smart Home', emoji: '🏠', color: '#14b8a6' },
   homelab: { name: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
-  sports: { name: 'Sports', emoji: '⚾', color: '#dc2626' },
-  music: { name: 'Music', emoji: '🎵', color: '#a855f7' },
+  networking: { name: 'Networking', emoji: '📡', color: '#0ea5e9' },
+  sports: { name: 'Sports', emoji: '⚾', color: '#ff5910' },
+  finance: { name: 'Finance', emoji: '📈', color: '#059669' },
+  tesla: { name: 'Tesla & EVs', emoji: '🚗', color: '#cc0000' },
+  
+  // Teelo
+  trueCrime: { name: 'True Crime', emoji: '🔍', color: '#991b1b' },
+  parenting: { name: 'Parenting', emoji: '👨‍👩‍👧‍👦', color: '#f472b6' },
   recipes: { name: 'Recipes', emoji: '🍳', color: '#f97316' },
   health: { name: 'Health', emoji: '💪', color: '#22c55e' },
   travel: { name: 'Travel', emoji: '✈️', color: '#0891b2' },
+  fashion: { name: 'Fashion & Beauty', emoji: '👗', color: '#ec4899' },
+  homeDecor: { name: 'Home Decor', emoji: '🏡', color: '#8b5cf6' },
+  shopping: { name: 'Deals & Shopping', emoji: '🛍️', color: '#ef4444' },
+  entertainment: { name: 'Entertainment', emoji: '⭐', color: '#fbbf24' },
+  
+  // Jayden
   animation: { name: 'Animation', emoji: '🎬', color: '#e11d48' },
+  movies: { name: 'Movies', emoji: '🎥', color: '#7c3aed' },
+  artSchool: { name: 'Art & Film', emoji: '🎨', color: '#c026d3' },
+  music: { name: 'Music', emoji: '🎸', color: '#a855f7' },
+  comics: { name: 'Comics', emoji: '💥', color: '#eab308' },
+  streetwear: { name: 'Streetwear', emoji: '👟', color: '#171717' },
   bjj: { name: 'BJJ & MMA', emoji: '🥋', color: '#0ea5e9' },
-  gaming: { name: 'Gaming', emoji: '🎮', color: '#8b5cf6' },
+  
+  // Jordan
   soccer: { name: 'Soccer', emoji: '⚽', color: '#16a34a' },
-  roblox: { name: 'Roblox', emoji: '🎲', color: '#ef4444' },
-  socialMedia: { name: 'Trending Videos', emoji: '📱', color: '#ff0050' }
+  gaming: { name: 'Gaming', emoji: '🎮', color: '#8b5cf6' },
+  youtube: { name: 'YouTube', emoji: '📺', color: '#ff0000' }
 };
 
-// POLITICS FIRST, then others, socialMedia LAST
-const CATEGORY_ORDER = ['politics', 'worldNews', 'movies', 'ai', 'tech', 'smartHome', 'homelab', 'sports', 'music', 'recipes', 'health', 'travel', 'animation', 'bjj', 'gaming', 'soccer', 'roblox', 'socialMedia'];
+// Politics first, then profile-specific, trending last
+const CATEGORY_ORDER = [
+  'politics', 'worldNews',
+  // Jae
+  'aiTech', 'smartHome', 'homelab', 'networking', 'sports', 'finance', 'tesla',
+  // Teelo
+  'trueCrime', 'parenting', 'recipes', 'health', 'travel', 'fashion', 'homeDecor', 'shopping', 'entertainment',
+  // Jayden
+  'animation', 'movies', 'artSchool', 'music', 'comics', 'bjj',
+  // Jordan + Jayden shared
+  'soccer', 'gaming', 'youtube', 'streetwear',
+  // Shared last
+  'trending'
+];
 
 const CATEGORY_IMAGES = {
-  trumpWatch: ['https://images.unsplash.com/photo-1501466044931-62695aada8e9?w=400&h=250&fit=crop'],
-  politics: ['https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1555848962-6e79363ec58f?w=400&h=250&fit=crop'],
-  worldNews: ['https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?w=400&h=250&fit=crop'],
-  movies: ['https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=250&fit=crop'],
-  ai: ['https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&h=250&fit=crop'],
-  tech: ['https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=250&fit=crop'],
-  smartHome: ['https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=250&fit=crop'],
-  homelab: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1597852074816-d933c7d2b988?w=400&h=250&fit=crop'],
-  sports: ['https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=400&h=250&fit=crop'],
-  music: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=250&fit=crop'],
-  socialMedia: ['https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=250&fit=crop'],
-  recipes: ['https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=400&h=250&fit=crop'],
-  health: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&h=250&fit=crop'],
-  travel: ['https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?w=400&h=250&fit=crop'],
-  animation: ['https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=250&fit=crop'],
-  bjj: ['https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=250&fit=crop'],
-  gaming: ['https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop'],
-  soccer: ['https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=250&fit=crop'],
-  roblox: ['https://images.unsplash.com/photo-1493711662062-fa541f7f3d24?w=400&h=250&fit=crop','https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&h=250&fit=crop']
+  politics: ['https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=250&fit=crop'],
+  worldNews: ['https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop'],
+  trending: ['https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=250&fit=crop'],
+  aiTech: ['https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop'],
+  smartHome: ['https://images.unsplash.com/photo-1558002038-1055907df827?w=400&h=250&fit=crop'],
+  homelab: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop'],
+  networking: ['https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=250&fit=crop'],
+  sports: ['https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=400&h=250&fit=crop'],
+  finance: ['https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop'],
+  tesla: ['https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400&h=250&fit=crop'],
+  trueCrime: ['https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=400&h=250&fit=crop'],
+  parenting: ['https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400&h=250&fit=crop'],
+  recipes: ['https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=250&fit=crop'],
+  health: ['https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop'],
+  travel: ['https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop'],
+  fashion: ['https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=250&fit=crop'],
+  homeDecor: ['https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400&h=250&fit=crop'],
+  shopping: ['https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=400&h=250&fit=crop'],
+  entertainment: ['https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=400&h=250&fit=crop'],
+  animation: ['https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?w=400&h=250&fit=crop'],
+  movies: ['https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=250&fit=crop'],
+  artSchool: ['https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=250&fit=crop'],
+  music: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=250&fit=crop'],
+  comics: ['https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=250&fit=crop'],
+  streetwear: ['https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=250&fit=crop'],
+  bjj: ['https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&h=250&fit=crop'],
+  soccer: ['https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=250&fit=crop'],
+  gaming: ['https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=250&fit=crop'],
+  youtube: ['https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=400&h=250&fit=crop']
 };
 
 const DEFAULT_IMAGES = ['https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=250&fit=crop'];
