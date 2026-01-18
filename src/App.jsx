@@ -172,6 +172,26 @@ function App() {
 
   function isSaved(article) { return savedArticles.some(a => a.link === article.link); }
 
+  // Track article clicks for learning
+  async function trackClick(article) {
+    try {
+      await fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profile: currentProfile,
+          category: article.category,
+          source: article.source,
+          articleId: article.link,
+          timestamp: new Date().toISOString()
+        })
+      });
+    } catch (e) {
+      // Silent fail - don't interrupt user
+      console.log('Track failed:', e);
+    }
+  }
+
   const articles = showSaved ? savedArticles : (data?.articles || []);
   
   // Filter by search
@@ -305,7 +325,7 @@ function App() {
               <section>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {searchFiltered.filter(a => a.category === selectedCategory).map((article, i) => (
-                    <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} featured={i === 0} />
+                    <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} onTrackClick={trackClick} featured={i === 0} />
                   ))}
                 </div>
                 {searchFiltered.filter(a => a.category === selectedCategory).length === 0 && (
@@ -329,7 +349,7 @@ function App() {
                     </h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {trumpArticles.slice(0, 3).map((article, i) => (
-                        <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} featured={i === 0} />
+                        <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} onTrackClick={trackClick} featured={i === 0} />
                       ))}
                     </div>
                   </section>
@@ -357,7 +377,7 @@ function App() {
                       </div>
                       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {catArticles.map((article, i) => (
-                          <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} />
+                          <ArticleCard key={article.link + i} article={article} darkMode={darkMode} isSaved={isSaved(article)} onToggleSave={() => toggleSaved(article)} onTrackClick={trackClick} />
                         ))}
                       </div>
                     </section>
@@ -387,12 +407,19 @@ function App() {
   );
 }
 
-function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
+function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured, onTrackClick }) {
   const cardBg = darkMode ? 'bg-gray-800' : 'bg-white';
   const borderColor = darkMode ? 'border-gray-700' : 'border-gray-200';
   const catInfo = CATEGORY_INFO[article.category] || { name: article.category, emoji: '📰', color: '#6b7280' };
   const imageUrl = article.image || getFallbackImage(article.category, article.title);
   const [imgError, setImgError] = useState(false);
+
+  const handleClick = () => {
+    // Track the click for learning
+    if (onTrackClick) {
+      onTrackClick(article);
+    }
+  };
   
   return (
     <article className={`${cardBg} border ${borderColor} rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 hover:-translate-y-1 ${featured ? 'md:col-span-2 lg:col-span-2' : ''} ${article.isTrumpRelated ? 'ring-2 ring-red-600' : ''}`}>
@@ -416,7 +443,13 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, featured }) {
       </div>
       
       <div className="p-4">
-        <a href={article.link} target="_blank" rel="noopener noreferrer" className="block group">
+        <a 
+          href={article.link} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="block group"
+          onClick={handleClick}
+        >
           <h3 className={`font-semibold mb-2 group-hover:text-blue-500 transition-colors line-clamp-2 ${featured ? 'text-lg' : 'text-base'}`}>
             {article.title}
           </h3>
