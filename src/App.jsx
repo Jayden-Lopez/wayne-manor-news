@@ -1,461 +1,404 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
 
+// Profile configurations
 const PROFILES = {
-  jae: { name: 'Jae', emoji: '👨‍💻', color: '#2563eb', lang: 'en' },
-  teelo: { name: 'Teelo', emoji: '👩', color: '#ec4899', lang: 'en' },
-  jayden: { name: 'Jayden', emoji: '🎮', color: '#8b5cf6', lang: 'en' },
-  jordan: { name: 'Jordan', emoji: '⚽', color: '#10b981', lang: 'en' },
+  jae: { name: 'Jae', emoji: '🦇', color: '#3b82f6' },
+  teelo: { name: 'Teelo', emoji: '👩', color: '#ec4899' },
+  jayden: { name: 'Jayden', emoji: '🎮', color: '#8b5cf6' },
+  jordan: { name: 'Jordan', emoji: '⚽', color: '#10b981' },
   felix: { name: 'Felix', emoji: '🇭🇳', color: '#00bce4', lang: 'es' }
 };
 
-// Spanish translations for UI elements
+// Category display info with Spanish translations
+const CATEGORY_INFO = {
+  politics: { name: 'Politics', nameEs: 'Política', icon: '🏛️', color: '#dc2626' },
+  worldNews: { name: 'World News', nameEs: 'Noticias Mundiales', icon: '🌍', color: '#2563eb' },
+  aiTech: { name: 'AI & Tech', nameEs: 'IA y Tecnología', icon: '🤖', color: '#8b5cf6' },
+  smartHome: { name: 'Smart Home', nameEs: 'Casa Inteligente', icon: '🏠', color: '#06b6d4' },
+  homelab: { name: 'Homelab', nameEs: 'Homelab', icon: '🖥️', color: '#64748b' },
+  networking: { name: 'Networking', nameEs: 'Redes', icon: '🌐', color: '#0ea5e9' },
+  mets: { name: 'NY Mets', nameEs: 'NY Mets', icon: '⚾', color: '#f97316' },
+  knicks: { name: 'NY Knicks', nameEs: 'NY Knicks', icon: '🏀', color: '#f97316' },
+  soccer: { name: 'Soccer', nameEs: 'Fútbol', icon: '⚽', color: '#22c55e' },
+  finance: { name: 'Finance', nameEs: 'Finanzas', icon: '💰', color: '#eab308' },
+  tesla: { name: 'Tesla/EVs', nameEs: 'Tesla/EVs', icon: '🚗', color: '#ef4444' },
+  trending: { name: 'Trending', nameEs: 'Tendencias', icon: '🔥', color: '#f43f5e' },
+  trueCrime: { name: 'True Crime', nameEs: 'Crimen Real', icon: '🔍', color: '#78716c' },
+  parenting: { name: 'Parenting', nameEs: 'Crianza', icon: '👨‍👩‍👧', color: '#ec4899' },
+  recipes: { name: 'Recipes', nameEs: 'Recetas', icon: '🍳', color: '#f59e0b' },
+  health: { name: 'Health', nameEs: 'Salud', icon: '💪', color: '#10b981' },
+  travel: { name: 'Travel', nameEs: 'Viajes', icon: '✈️', color: '#0ea5e9' },
+  fashion: { name: 'Fashion', nameEs: 'Moda', icon: '👗', color: '#d946ef' },
+  homeDecor: { name: 'Home Decor', nameEs: 'Decoración', icon: '🛋️', color: '#a855f7' },
+  shopping: { name: 'Shopping', nameEs: 'Compras', icon: '🛍️', color: '#ec4899' },
+  entertainment: { name: 'Entertainment', nameEs: 'Entretenimiento', icon: '🎬', color: '#f43f5e' },
+  animation: { name: 'Animation', nameEs: 'Animación', icon: '🎨', color: '#8b5cf6' },
+  artSchool: { name: 'Art School', nameEs: 'Escuela de Arte', icon: '🖌️', color: '#a855f7' },
+  music: { name: 'Music', nameEs: 'Música', icon: '🎸', color: '#1d4ed8' },
+  comics: { name: 'Comics', nameEs: 'Cómics', icon: '📚', color: '#eab308' },
+  bjj: { name: 'BJJ/MMA', nameEs: 'BJJ/MMA', icon: '🥋', color: '#dc2626' },
+  streetwear: { name: 'Streetwear', nameEs: 'Streetwear', icon: '👟', color: '#1f2937' },
+  gaming: { name: 'Gaming', nameEs: 'Videojuegos', icon: '🎮', color: '#7c3aed' },
+  roblox: { name: 'Roblox', nameEs: 'Roblox', icon: '🧱', color: '#dc2626' },
+  soccerSkills: { name: 'Soccer Skills', nameEs: 'Técnicas de Fútbol', icon: '⚽', color: '#22c55e' },
+  movies: { name: 'Movies', nameEs: 'Películas', icon: '🎥', color: '#6366f1' },
+  honduras: { name: 'Honduras', nameEs: 'Honduras', icon: '🇭🇳', color: '#00bce4' }
+};
+
+// Categories by profile
+const PROFILE_CATEGORIES = {
+  jae: ['politics', 'worldNews', 'aiTech', 'smartHome', 'homelab', 'networking', 'mets', 'knicks', 'soccer', 'finance', 'tesla', 'trending'],
+  teelo: ['politics', 'worldNews', 'trueCrime', 'parenting', 'recipes', 'health', 'travel', 'fashion', 'homeDecor', 'shopping', 'entertainment', 'movies', 'trending'],
+  jayden: ['politics', 'worldNews', 'animation', 'artSchool', 'music', 'comics', 'bjj', 'streetwear', 'soccer', 'movies', 'trending'],
+  jordan: ['politics', 'worldNews', 'gaming', 'roblox', 'soccerSkills', 'streetwear', 'soccer', 'trending'],
+  felix: ['honduras', 'politics', 'worldNews']
+};
+
+// Translations for UI elements
 const TRANSLATIONS = {
   en: {
-    newsHub: 'Wayne Manor News Hub',
-    search: 'Search articles...',
-    articles: 'articles',
-    trumpWatch: 'Trump Watch',
+    searchPlaceholder: 'Search articles...',
+    allCategories: 'All',
     lastUpdated: 'Last updated',
-    failedToLoad: 'Failed to load news',
-    failedToFetch: 'Failed to fetch',
-    tryAgain: 'Try Again',
-    readFullArticle: 'Read Full Article'
+    favorites: 'Favorites',
+    noArticles: 'No articles found',
+    loading: 'Loading...',
+    readMore: 'Read more',
+    trumpWatch: 'TRUMP'
   },
   es: {
-    newsHub: 'Centro de Noticias Wayne Manor',
-    search: 'Buscar artículos...',
-    articles: 'artículos',
-    trumpWatch: 'Alerta Trump',
+    searchPlaceholder: 'Buscar artículos...',
+    allCategories: 'Todos',
     lastUpdated: 'Última actualización',
-    failedToLoad: 'Error al cargar noticias',
-    failedToFetch: 'Error de conexión',
-    tryAgain: 'Intentar de nuevo',
-    readFullArticle: 'Leer artículo completo'
+    favorites: 'Favoritos',
+    noArticles: 'No se encontraron artículos',
+    loading: 'Cargando...',
+    readMore: 'Leer más',
+    trumpWatch: 'TRUMP'
   }
 };
 
-const CATEGORY_INFO = {
-  // Shared categories
-  trumpWatch: { name: 'Trump Watch', nameEs: 'Alerta Trump', emoji: '🔴', color: '#dc2626' },
-  politics: { name: 'Politics', nameEs: 'Política', emoji: '🏛️', color: '#6b7280' },
-  worldNews: { name: 'World News', nameEs: 'Noticias Mundiales', emoji: '🌍', color: '#059669' },
-  trending: { name: 'Trending', nameEs: 'Tendencias', emoji: '📈', color: '#f59e0b' },
-
-  // Felix specific
-  honduras: { name: 'Honduras', nameEs: 'Honduras', emoji: '🇭🇳', color: '#00bce4' },
-
-  // Jae specific
-  aiTech: { name: 'AI & Tech', nameEs: 'IA y Tecnología', emoji: '🤖', color: '#3b82f6' },
-  smartHome: { name: 'Smart Home', nameEs: 'Casa Inteligente', emoji: '🏠', color: '#14b8a6' },
-  homelab: { name: 'Homelab', nameEs: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
-  networking: { name: 'Networking', nameEs: 'Redes', emoji: '🌐', color: '#6366f1' },
-  mets: { name: 'NY Mets', nameEs: 'NY Mets', emoji: '⚾', color: '#f97316' },
-  knicks: { name: 'NY Knicks', nameEs: 'NY Knicks', emoji: '🏀', color: '#f97316' },
-  finance: { name: 'Finance', nameEs: 'Finanzas', emoji: '💰', color: '#10b981' },
-  tesla: { name: 'Tesla & EVs', nameEs: 'Tesla y Eléctricos', emoji: '🚗', color: '#ef4444' },
-
-  // Teelo specific
-  trueCrime: { name: 'True Crime', nameEs: 'Crimen Real', emoji: '🔍', color: '#7c3aed' },
-  parenting: { name: 'Parenting', nameEs: 'Crianza', emoji: '👶', color: '#ec4899' },
-  recipes: { name: 'Recipes', nameEs: 'Recetas', emoji: '🍳', color: '#f59e0b' },
-  health: { name: 'Health', nameEs: 'Salud', emoji: '💪', color: '#10b981' },
-  travel: { name: 'Travel', nameEs: 'Viajes', emoji: '✈️', color: '#0ea5e9' },
-  fashion: { name: 'Fashion', nameEs: 'Moda', emoji: '👗', color: '#ec4899' },
-  homeDecor: { name: 'Home Decor', nameEs: 'Decoración', emoji: '🛋️', color: '#8b5cf6' },
-  shopping: { name: 'Shopping', nameEs: 'Compras', emoji: '🛍️', color: '#f43f5e' },
-  entertainment: { name: 'Entertainment', nameEs: 'Entretenimiento', emoji: '🎬', color: '#a855f7' },
-
-  // Jayden specific
-  animation: { name: 'Animation', nameEs: 'Animación', emoji: '🎨', color: '#f43f5e' },
-  artSchool: { name: 'Art School', nameEs: 'Escuela de Arte', emoji: '🖌️', color: '#ec4899' },
-  music: { name: 'Metal/Rock', nameEs: 'Metal/Rock', emoji: '🎸', color: '#1f2937' },
-  comics: { name: 'Comics', nameEs: 'Cómics', emoji: '💥', color: '#eab308' },
-  bjj: { name: 'BJJ/MMA', nameEs: 'BJJ/MMA', emoji: '🥋', color: '#dc2626' },
-
-  // Jordan specific
-  gaming: { name: 'Gaming', nameEs: 'Videojuegos', emoji: '🎮', color: '#8b5cf6' },
-  roblox: { name: 'Roblox', nameEs: 'Roblox', emoji: '🧱', color: '#ef4444' },
-  soccerSkills: { name: 'Soccer Skills', nameEs: 'Técnica de Fútbol', emoji: '⚽', color: '#10b981' },
-
-  // Shared between some profiles
-  soccer: { name: 'Soccer', nameEs: 'Fútbol', emoji: '⚽', color: '#10b981' },
-  movies: { name: 'Movies', nameEs: 'Películas', emoji: '🎬', color: '#6366f1' },
-  streetwear: { name: 'Streetwear', nameEs: 'Moda Urbana', emoji: '👟', color: '#1f2937' }
-};
-
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=250&fit=crop';
-
-function ArticleCard({ article, onClick }) {
-  const [imgError, setImgError] = useState(false);
-  const categoryInfo = CATEGORY_INFO[article.category] || { name: article.category, emoji: '📰', color: '#6b7280' };
-
-  return (
-    <div
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
-      onClick={() => onClick(article)}
-    >
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={imgError ? DEFAULT_IMAGE : (article.image || DEFAULT_IMAGE)}
-          alt={article.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={() => setImgError(true)}
-        />
-        <div
-          className="absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium text-white"
-          style={{ backgroundColor: categoryInfo.color }}
-        >
-          {categoryInfo.emoji} {categoryInfo.name}
-        </div>
-      </div>
-      <div className="p-4">
-        <h3 className="font-bold text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-          {article.title}
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
-          {article.description}
-        </p>
-        <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-          <span className="font-medium">{article.source}</span>
-          <span>{new Date(article.pubDate).toLocaleDateString()}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TrumpCard({ article, onClick, lang = 'en' }) {
-  const [imgError, setImgError] = useState(false);
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
-
-  return (
-    <div
-      className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group"
-      onClick={() => onClick(article)}
-    >
-      <div className="flex flex-col md:flex-row">
-        <div className="md:w-2/5 h-48 md:h-auto overflow-hidden">
-          <img
-            src={imgError ? DEFAULT_IMAGE : (article.image || DEFAULT_IMAGE)}
-            alt={article.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={() => setImgError(true)}
-          />
-        </div>
-        <div className="md:w-3/5 p-5 text-white">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="bg-white text-red-600 px-2 py-1 rounded text-xs font-bold">🔴 {t.trumpWatch.toUpperCase()}</span>
-          </div>
-          <h3 className="font-bold text-xl mb-2 line-clamp-2 group-hover:underline">
-            {article.title}
-          </h3>
-          <p className="text-red-100 text-sm line-clamp-2 mb-3">
-            {article.description}
-          </p>
-          <div className="flex justify-between items-center text-xs text-red-200">
-            <span className="font-medium">{article.source}</span>
-            <span>{new Date(article.pubDate).toLocaleDateString(lang === 'es' ? 'es-HN' : 'en-US')}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CategorySection({ category, articles, onArticleClick, lang = 'en' }) {
-  const categoryInfo = CATEGORY_INFO[category] || { name: category, nameEs: category, emoji: '📰', color: '#6b7280' };
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
-  const categoryName = lang === 'es' && categoryInfo.nameEs ? categoryInfo.nameEs : categoryInfo.name;
-
-  if (!articles || articles.length === 0) return null;
-
-  return (
-    <div className="mb-10">
-      <div className="flex items-center gap-3 mb-4">
-        <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-          style={{ backgroundColor: `${categoryInfo.color}20` }}
-        >
-          {categoryInfo.emoji}
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {categoryName}
-        </h2>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          {articles.length} {t.articles}
-        </span>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {articles.slice(0, 6).map((article, idx) => (
-          <ArticleCard key={idx} article={article} onClick={onArticleClick} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ProfileSwitcher({ currentProfile }) {
-  return (
-    <div className="flex gap-2 flex-wrap">
-      {Object.entries(PROFILES).map(([key, profile]) => (
-        <Link
-          key={key}
-          to={`/${key}`}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-            currentProfile === key
-              ? 'text-white shadow-md'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-          style={currentProfile === key ? { backgroundColor: profile.color } : {}}
-        >
-          {profile.emoji} {profile.name}
-        </Link>
-      ))}
-    </div>
-  );
-}
-
-function ArticleModal({ article, onClose, lang = 'en' }) {
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
-
-  if (!article) return null;
-
-  return (
-    <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="relative h-64 overflow-hidden">
-          <img
-            src={article.image || DEFAULT_IMAGE}
-            alt={article.title}
-            className="w-full h-full object-cover"
-          />
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/70 transition"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            {article.title}
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
-            {article.description}
-          </p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {article.source} • {new Date(article.pubDate).toLocaleDateString(lang === 'es' ? 'es-HN' : 'en-US')}
-            </span>
-            <a
-              href={article.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              {t.readFullArticle} →
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const KV_WORKER_URL = 'https://wayne-manor-kv.juan-lopez26.workers.dev';
 
 function App() {
-  const { profile = 'jae' } = useParams();
-  const navigate = useNavigate();
-  const [data, setData] = useState(null);
+  const [profile, setProfile] = useState(() => {
+    const path = window.location.pathname.slice(1).toLowerCase();
+    return PROFILES[path] ? path : 'jae';
+  });
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('darkMode') === 'true' ||
-        window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
-  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', darkMode);
-  }, [darkMode]);
-
-  useEffect(() => {
-    if (!PROFILES[profile]) {
-      navigate('/jae');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    fetch(`/api/feed/${profile}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch');
-        return res.json();
-      })
-      .then(setData)
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [profile, navigate]);
-
-  const profileInfo = PROFILES[profile] || PROFILES.jae;
-  const lang = profileInfo.lang || 'en';
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
-
-  const filteredArticles = data?.articles?.filter(article => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return article.title?.toLowerCase().includes(query) ||
-           article.description?.toLowerCase().includes(query) ||
-           article.source?.toLowerCase().includes(query);
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem('wayne-manor-favorites');
+    return saved ? JSON.parse(saved) : [];
   });
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  const trumpArticles = filteredArticles?.filter(a => a.isTrumpRelated) || [];
-  const regularArticles = filteredArticles?.filter(a => !a.isTrumpRelated) || [];
+  const currentProfile = PROFILES[profile];
+  const lang = currentProfile.lang || 'en';
+  const t = TRANSLATIONS[lang];
+  const categories = PROFILE_CATEGORIES[profile] || [];
 
-  const articlesByCategory = {};
-  regularArticles.forEach(article => {
-    if (!articlesByCategory[article.category]) {
-      articlesByCategory[article.category] = [];
+  // Load favorites
+  useEffect(() => {
+    localStorage.setItem('wayne-manor-favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  // Load articles
+  useEffect(() => {
+    const loadArticles = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${KV_WORKER_URL}/profile-${profile}`);
+        if (response.ok) {
+          const data = await response.json();
+          setArticles(data.articles || []);
+          setLastUpdated(data.generatedAt);
+        }
+      } catch (error) {
+        console.error('Failed to load articles:', error);
+      }
+      setLoading(false);
+    };
+    loadArticles();
+    setSelectedCategory('all');
+  }, [profile]);
+
+  // Handle URL changes
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.slice(1).toLowerCase();
+      if (PROFILES[path]) {
+        setProfile(path);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handleProfileChange = (newProfile) => {
+    setProfile(newProfile);
+    setShowDropdown(false);
+    window.history.pushState({}, '', `/${newProfile}`);
+  };
+
+  const toggleFavorite = (articleLink) => {
+    setFavorites(prev =>
+      prev.includes(articleLink)
+        ? prev.filter(l => l !== articleLink)
+        : [...prev, articleLink]
+    );
+  };
+
+  // Filter articles
+  const filteredArticles = useMemo(() => {
+    let result = articles;
+
+    if (selectedCategory !== 'all') {
+      result = result.filter(a => a.category === selectedCategory);
     }
-    articlesByCategory[article.category].push(article);
-  });
 
-  const categoryOrder = data?.categoryOrder || Object.keys(CATEGORY_INFO);
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(a =>
+        a.title.toLowerCase().includes(query) ||
+        a.description?.toLowerCase().includes(query) ||
+        a.source.toLowerCase().includes(query)
+      );
+    }
+
+    return result;
+  }, [articles, selectedCategory, searchQuery]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const locale = lang === 'es' ? 'es-HN' : 'en-US';
+    return date.toLocaleString(locale, {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  };
+
+  const getCategoryName = (category) => {
+    const info = CATEGORY_INFO[category];
+    if (!info) return category;
+    return lang === 'es' ? info.nameEs : info.name;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="sticky top-0 z-50 bg-gray-800 border-b border-gray-700 shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo and Profile Dropdown */}
             <div className="flex items-center gap-3">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl text-white shadow-lg"
-                style={{ backgroundColor: profileInfo.color }}
-              >
-                {profileInfo.emoji}
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {lang === 'es' ? `Noticias de ${profileInfo.name}` : `${profileInfo.name}'s News`}
-                </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t.newsHub}
-                </p>
+              <span className="text-2xl">🦇</span>
+              <h1 className="text-xl font-bold">Wayne Manor News</h1>
+
+              {/* Profile Dropdown */}
+              <div className="relative ml-2">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors"
+                  style={{ borderLeft: `3px solid ${currentProfile.color}` }}
+                >
+                  <span>{currentProfile.emoji}</span>
+                  <span className="font-medium">{currentProfile.name}'s Feed</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {showDropdown && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-gray-700 rounded-lg shadow-xl border border-gray-600 overflow-hidden">
+                    {Object.entries(PROFILES).map(([key, p]) => (
+                      <button
+                        key={key}
+                        onClick={() => handleProfileChange(key)}
+                        className={`w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-600 transition-colors ${profile === key ? 'bg-gray-600' : ''}`}
+                      >
+                        <span>{p.emoji}</span>
+                        <span>{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={t.search}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-              </div>
-
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-              >
-                {darkMode ? '☀️' : '🌙'}
-              </button>
+            {/* Favorites Counter */}
+            <div className="flex items-center gap-2 text-sm">
+              <span>⭐</span>
+              <span>{favorites.length}</span>
+              <span className="text-yellow-400">✨</span>
             </div>
           </div>
 
-          <div className="mt-4">
-            <ProfileSwitcher currentProfile={profile} />
+          {/* Search Bar */}
+          <div className="mt-3">
+            <input
+              type="text"
+              placeholder={t.searchPlaceholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+            />
+          </div>
+
+          {/* Category Pills */}
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {t.allCategories}
+            </button>
+            {categories.map(cat => {
+              const info = CATEGORY_INFO[cat];
+              if (!info) return null;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
+                    selectedCategory === cat
+                      ? 'text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                  style={selectedCategory === cat ? { backgroundColor: info.color } : {}}
+                >
+                  <span>{info.icon}</span>
+                  <span>{getCategoryName(cat)}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {loading && (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-lg text-gray-400">{t.loading}</div>
           </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-            <p className="text-red-600 dark:text-red-400 font-medium">{t.failedToLoad}</p>
-            <p className="text-red-500 dark:text-red-300 text-sm mt-1">{t.failedToFetch}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-            >
-              {t.tryAgain}
-            </button>
+        ) : filteredArticles.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            {t.noArticles}
           </div>
-        )}
+        ) : (
+          <div className="space-y-4">
+            {filteredArticles.map((article, index) => {
+              const catInfo = CATEGORY_INFO[article.category] || {};
+              const isFavorite = favorites.includes(article.link);
 
-        {data && !loading && (
-          <>
-            {/* Trump Watch Section */}
-            {trumpArticles.length > 0 && (
-              <div className="mb-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xl">
-                    🔴
+              return (
+                <article
+                  key={article.link || index}
+                  className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-colors"
+                >
+                  <div className="flex">
+                    {/* Image */}
+                    {article.image && (
+                      <div className="w-32 h-32 flex-shrink-0">
+                        <img
+                          src={article.image}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Content */}
+                    <div className="flex-1 p-4">
+                      {/* Badges */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="px-2 py-0.5 rounded text-xs font-medium text-white"
+                          style={{ backgroundColor: catInfo.color || '#6b7280' }}
+                        >
+                          {getCategoryName(article.category)}
+                        </span>
+                        {article.isTrumpRelated && (
+                          <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600 text-white">
+                            {t.trumpWatch}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <a
+                        href={article.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <h2 className="text-lg font-semibold text-white hover:text-blue-400 transition-colors line-clamp-2">
+                          {article.title}
+                        </h2>
+                      </a>
+
+                      {/* Description */}
+                      {article.description && (
+                        <p className="mt-1 text-sm text-gray-400 line-clamp-2">
+                          {article.description}
+                        </p>
+                      )}
+
+                      {/* Footer */}
+                      <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{article.source}</span>
+                          <span>•</span>
+                          <span>{formatDate(article.pubDate)}</span>
+                        </div>
+
+                        <button
+                          onClick={() => toggleFavorite(article.link)}
+                          className="text-lg hover:scale-110 transition-transform"
+                        >
+                          {isFavorite ? '⭐' : '☆'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
-                    {t.trumpWatch}
-                  </h2>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {trumpArticles.length} {t.articles}
-                  </span>
-                </div>
-                <div className="space-y-4">
-                  {trumpArticles.slice(0, 3).map((article, idx) => (
-                    <TrumpCard key={idx} article={article} onClick={setSelectedArticle} lang={lang} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Category Sections */}
-            {categoryOrder.map(category => (
-              <CategorySection
-                key={category}
-                category={category}
-                articles={articlesByCategory[category]}
-                onArticleClick={setSelectedArticle}
-                lang={lang}
-              />
-            ))}
-
-            {/* Last Updated */}
-            {data.generatedAt && (
-              <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8 pb-8">
-                {t.lastUpdated}: {new Date(data.generatedAt).toLocaleString(lang === 'es' ? 'es-HN' : 'en-US')}
-              </div>
-            )}
-          </>
+                </article>
+              );
+            })}
+          </div>
         )}
       </main>
 
-      {/* Article Modal */}
-      <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} lang={lang} />
+      {/* Footer */}
+      <footer className="border-t border-gray-700 py-4 mt-8">
+        <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
+          <p>
+            {t.lastUpdated}: {formatDate(lastUpdated)}
+          </p>
+          <p className="mt-1">🦇 Wayne Manor News Hub</p>
+        </div>
+      </footer>
+
+      {/* Click outside to close dropdown */}
+      {showDropdown && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowDropdown(false)}
+        />
+      )}
     </div>
   );
 }
