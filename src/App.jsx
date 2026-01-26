@@ -1,284 +1,286 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+
+const API_BASE = 'https://jutalo26.com';
+
+// Category configuration with icons and display names
+const categoryConfig = {
+  politics: { name: 'Politics', icon: '🏛️' },
+  worldNews: { name: 'World News', icon: '🌍' },
+  trending: { name: 'Trending Videos', icon: '📱' },
+  aiTech: { name: 'AI & Tech', icon: '🤖' },
+  smartHome: { name: 'Smart Home', icon: '🏠' },
+  homelab: { name: 'Homelab', icon: '🖥️' },
+  networking: { name: 'Networking', icon: '🌐' },
+  sports: { name: 'Sports', icon: '⚾' },
+  finance: { name: 'Finance', icon: '💰' },
+  tesla: { name: 'Tesla/EVs', icon: '🚗' },
+  trueCrime: { name: 'True Crime', icon: '🔍' },
+  parenting: { name: 'Parenting', icon: '👨‍👩‍👧' },
+  recipes: { name: 'Recipes', icon: '🍳' },
+  health: { name: 'Health', icon: '💪' },
+  travel: { name: 'Travel', icon: '✈️' },
+  fashion: { name: 'Fashion', icon: '👗' },
+  homeDecor: { name: 'Home Decor', icon: '🛋️' },
+  shopping: { name: 'Shopping', icon: '🛍️' },
+  entertainment: { name: 'Entertainment', icon: '🎬' },
+  animation: { name: 'Animation', icon: '🎨' },
+  movies: { name: 'Movies', icon: '🎥' },
+  artSchool: { name: 'Art School', icon: '🖌️' },
+  music: { name: 'Music', icon: '🎸' },
+  comics: { name: 'Comics', icon: '📚' },
+  bjj: { name: 'BJJ/MMA', icon: '🥋' },
+  soccer: { name: 'Soccer', icon: '⚽' },
+  streetwear: { name: 'Streetwear', icon: '👟' },
+  gaming: { name: 'Gaming', icon: '🎮' },
+  youtube: { name: 'YouTube', icon: '📺' },
+  soccerYT: { name: 'Soccer Training', icon: '⚽' }
+};
 
 // Profile configurations
-const PROFILES = {
-  jae: { name: 'Jae', emoji: '🦇', color: '#3b82f6' },
-  teelo: { name: 'Teelo', emoji: '👩', color: '#ec4899' },
-  jayden: { name: 'Jayden', emoji: '🎮', color: '#8b5cf6' },
-  jordan: { name: 'Jordan', emoji: '⚽', color: '#10b981' },
-  felix: { name: 'Felix', emoji: '🇭🇳', color: '#00bce4', lang: 'es' }
-};
-
-// Category display info with Spanish translations
-const CATEGORY_INFO = {
-  politics: { name: 'Politics', nameEs: 'Política', icon: '🏛️', color: '#dc2626' },
-  worldNews: { name: 'World News', nameEs: 'Noticias Mundiales', icon: '🌍', color: '#2563eb' },
-  aiTech: { name: 'AI & Tech', nameEs: 'IA y Tecnología', icon: '🤖', color: '#8b5cf6' },
-  smartHome: { name: 'Smart Home', nameEs: 'Casa Inteligente', icon: '🏠', color: '#06b6d4' },
-  homelab: { name: 'Homelab', nameEs: 'Homelab', icon: '🖥️', color: '#64748b' },
-  networking: { name: 'Networking', nameEs: 'Redes', icon: '🌐', color: '#0ea5e9' },
-  mets: { name: 'NY Mets', nameEs: 'NY Mets', icon: '⚾', color: '#f97316' },
-  knicks: { name: 'NY Knicks', nameEs: 'NY Knicks', icon: '🏀', color: '#f97316' },
-  soccer: { name: 'Soccer', nameEs: 'Fútbol', icon: '⚽', color: '#22c55e' },
-  finance: { name: 'Finance', nameEs: 'Finanzas', icon: '💰', color: '#eab308' },
-  tesla: { name: 'Tesla/EVs', nameEs: 'Tesla/EVs', icon: '🚗', color: '#ef4444' },
-  trending: { name: 'Trending', nameEs: 'Tendencias', icon: '🔥', color: '#f43f5e' },
-  trueCrime: { name: 'True Crime', nameEs: 'Crimen Real', icon: '🔍', color: '#78716c' },
-  parenting: { name: 'Parenting', nameEs: 'Crianza', icon: '👨‍👩‍👧', color: '#ec4899' },
-  recipes: { name: 'Recipes', nameEs: 'Recetas', icon: '🍳', color: '#f59e0b' },
-  health: { name: 'Health', nameEs: 'Salud', icon: '💪', color: '#10b981' },
-  travel: { name: 'Travel', nameEs: 'Viajes', icon: '✈️', color: '#0ea5e9' },
-  fashion: { name: 'Fashion', nameEs: 'Moda', icon: '👗', color: '#d946ef' },
-  homeDecor: { name: 'Home Decor', nameEs: 'Decoración', icon: '🛋️', color: '#a855f7' },
-  shopping: { name: 'Shopping', nameEs: 'Compras', icon: '🛍️', color: '#ec4899' },
-  entertainment: { name: 'Entertainment', nameEs: 'Entretenimiento', icon: '🎬', color: '#f43f5e' },
-  animation: { name: 'Animation', nameEs: 'Animación', icon: '🎨', color: '#8b5cf6' },
-  artSchool: { name: 'Art School', nameEs: 'Escuela de Arte', icon: '🖌️', color: '#a855f7' },
-  music: { name: 'Music', nameEs: 'Música', icon: '🎸', color: '#1d4ed8' },
-  comics: { name: 'Comics', nameEs: 'Cómics', icon: '📚', color: '#eab308' },
-  bjj: { name: 'BJJ/MMA', nameEs: 'BJJ/MMA', icon: '🥋', color: '#dc2626' },
-  streetwear: { name: 'Streetwear', nameEs: 'Streetwear', icon: '👟', color: '#1f2937' },
-  gaming: { name: 'Gaming', nameEs: 'Videojuegos', icon: '🎮', color: '#7c3aed' },
-  roblox: { name: 'Roblox', nameEs: 'Roblox', icon: '🧱', color: '#dc2626' },
-  soccerSkills: { name: 'Soccer Skills', nameEs: 'Técnicas de Fútbol', icon: '⚽', color: '#22c55e' },
-  movies: { name: 'Movies', nameEs: 'Películas', icon: '🎥', color: '#6366f1' },
-  honduras: { name: 'Honduras', nameEs: 'Honduras', icon: '🇭🇳', color: '#00bce4' }
-};
-
-// Categories by profile
-const PROFILE_CATEGORIES = {
-  jae: ['politics', 'worldNews', 'aiTech', 'smartHome', 'homelab', 'networking', 'mets', 'knicks', 'soccer', 'finance', 'tesla', 'trending'],
-  teelo: ['politics', 'worldNews', 'trueCrime', 'parenting', 'recipes', 'health', 'travel', 'fashion', 'homeDecor', 'shopping', 'entertainment', 'movies', 'trending'],
-  jayden: ['politics', 'worldNews', 'animation', 'artSchool', 'music', 'comics', 'bjj', 'streetwear', 'soccer', 'movies', 'trending'],
-  jordan: ['politics', 'worldNews', 'gaming', 'roblox', 'soccerSkills', 'streetwear', 'soccer', 'trending'],
-  felix: ['honduras', 'politics', 'worldNews']
-};
-
-// Translations for UI elements
-const TRANSLATIONS = {
-  en: {
-    searchPlaceholder: 'Search articles...',
-    allCategories: 'All',
-    lastUpdated: 'Last updated',
-    favorites: 'Favorites',
-    noArticles: 'No articles found',
-    loading: 'Loading...',
-    readMore: 'Read more',
-    trumpWatch: 'TRUMP'
+const profileConfig = {
+  jae: {
+    name: "Jae's Feed",
+    icon: '👨‍💻',
+    categories: ['politics', 'worldNews', 'aiTech', 'smartHome', 'homelab', 'networking', 'sports', 'finance', 'tesla', 'trending']
   },
-  es: {
-    searchPlaceholder: 'Buscar artículos...',
-    allCategories: 'Todos',
-    lastUpdated: 'Última actualización',
-    favorites: 'Favoritos',
-    noArticles: 'No se encontraron artículos',
-    loading: 'Cargando...',
-    readMore: 'Leer más',
-    trumpWatch: 'TRUMP'
+  teelo: {
+    name: "Teelo's Feed",
+    icon: '👩',
+    categories: ['politics', 'worldNews', 'trueCrime', 'parenting', 'recipes', 'health', 'travel', 'fashion', 'homeDecor', 'shopping', 'entertainment', 'trending']
+  },
+  jayden: {
+    name: "Jayden's Feed",
+    icon: '🎨',
+    categories: ['politics', 'worldNews', 'animation', 'movies', 'artSchool', 'music', 'comics', 'bjj', 'soccer', 'streetwear', 'trending']
+  },
+  jordan: {
+    name: "Jordan's Feed",
+    icon: '🎮',
+    categories: ['politics', 'worldNews', 'soccer', 'gaming', 'youtube', 'soccerYT', 'streetwear', 'trending']
   }
 };
 
-const KV_WORKER_URL = 'https://wayne-manor-kv.juan-lopez26.workers.dev';
-
 function App() {
-  const [profile, setProfile] = useState(() => {
-    const path = window.location.pathname.slice(1).toLowerCase();
-    return PROFILES[path] ? path : 'jae';
-  });
   const [articles, setArticles] = useState([]);
+  const [trumpWatch, setTrumpWatch] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('wayne-manor-favorites');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [darkMode, setDarkMode] = useState(true);
+  const [savedArticles, setSavedArticles] = useState([]);
+  const [showSaved, setShowSaved] = useState(false);
+  const [currentProfile, setCurrentProfile] = useState('jae');
 
-  const currentProfile = PROFILES[profile];
-  const lang = currentProfile.lang || 'en';
-  const t = TRANSLATIONS[lang];
-  const categories = PROFILE_CATEGORIES[profile] || [];
-
-  // Load favorites
+  // Get current profile from URL
   useEffect(() => {
-    localStorage.setItem('wayne-manor-favorites', JSON.stringify(favorites));
-  }, [favorites]);
-
-  // Load articles
-  useEffect(() => {
-    const loadArticles = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`${KV_WORKER_URL}/profile-${profile}`);
-        if (response.ok) {
-          const data = await response.json();
-          setArticles(data.articles || []);
-          setLastUpdated(data.generatedAt);
-        }
-      } catch (error) {
-        console.error('Failed to load articles:', error);
-      }
-      setLoading(false);
-    };
-    loadArticles();
-    setSelectedCategory('all');
-  }, [profile]);
-
-  // Handle URL changes
-  useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname.slice(1).toLowerCase();
-      if (PROFILES[path]) {
-        setProfile(path);
-      }
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    const path = window.location.pathname.replace('/', '').toLowerCase();
+    if (profileConfig[path]) {
+      setCurrentProfile(path);
+    } else if (path === '' || path === 'index.html') {
+      setCurrentProfile('jae');
+    }
   }, []);
 
-  const handleProfileChange = (newProfile) => {
-    setProfile(newProfile);
-    setShowDropdown(false);
-    window.history.pushState({}, '', `/${newProfile}`);
-  };
+  // Load saved articles from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(`savedArticles-${currentProfile}`);
+    if (saved) {
+      setSavedArticles(JSON.parse(saved));
+    }
+  }, [currentProfile]);
 
-  const toggleFavorite = (articleLink) => {
-    setFavorites(prev =>
-      prev.includes(articleLink)
-        ? prev.filter(l => l !== articleLink)
-        : [...prev, articleLink]
-    );
-  };
+  // Fetch news data
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE}/api/news/${currentProfile}`);
+        if (!response.ok) throw new Error('Failed to fetch news');
+        const data = await response.json();
+        
+        setArticles(data.articles || []);
+        setTrumpWatch(data.trumpWatch || []);
+        setLastUpdated(data.generatedAt);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+        // Try fallback to main data
+        try {
+          const fallback = await fetch(`${API_BASE}/api/news`);
+          const data = await fallback.json();
+          if (data.feedsByProfile && data.feedsByProfile[currentProfile]) {
+            setArticles(data.feedsByProfile[currentProfile]);
+            setTrumpWatch(data.trumpWatch || []);
+            setLastUpdated(data.generatedAt);
+            setError(null);
+          }
+        } catch (e) {
+          console.error('Fallback failed:', e);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+    const interval = setInterval(fetchNews, 5 * 60 * 1000); // Refresh every 5 minutes
+    return () => clearInterval(interval);
+  }, [currentProfile]);
+
+  // Get categories for current profile
+  const profileCategories = profileConfig[currentProfile]?.categories || [];
 
   // Filter articles
-  const filteredArticles = useMemo(() => {
-    let result = articles;
+  const filteredArticles = (showSaved ? savedArticles : articles).filter(article => {
+    const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
+    const matchesSearch = !searchTerm || 
+      article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      article.source.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-    if (selectedCategory !== 'all') {
-      result = result.filter(a => a.category === selectedCategory);
+  // Toggle save article
+  const toggleSave = (article) => {
+    const newSaved = savedArticles.some(a => a.link === article.link)
+      ? savedArticles.filter(a => a.link !== article.link)
+      : [...savedArticles, article];
+    setSavedArticles(newSaved);
+    localStorage.setItem(`savedArticles-${currentProfile}`, JSON.stringify(newSaved));
+  };
+
+  // Group articles by category for display
+  const groupedArticles = {};
+  const trumpArticles = filteredArticles.filter(a => a.isTrumpRelated);
+  
+  filteredArticles.forEach(article => {
+    if (!groupedArticles[article.category]) {
+      groupedArticles[article.category] = [];
     }
+    groupedArticles[article.category].push(article);
+  });
 
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(a =>
-        a.title.toLowerCase().includes(query) ||
-        a.description?.toLowerCase().includes(query) ||
-        a.source.toLowerCase().includes(query)
-      );
-    }
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+  };
 
-    return result;
-  }, [articles, selectedCategory, searchQuery]);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const locale = lang === 'es' ? 'es-HN' : 'en-US';
-    return date.toLocaleString(locale, {
-      month: 'short',
-      day: 'numeric',
+  const formatLastUpdated = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('en-US', { 
+      month: 'numeric', 
+      day: 'numeric', 
+      year: 'numeric',
       hour: 'numeric',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
   };
 
-  const getCategoryName = (category) => {
-    const info = CATEGORY_INFO[category];
-    if (!info) return category;
-    return lang === 'es' ? info.nameEs : info.name;
-  };
+  // Profile selector dropdown
+  const ProfileSelector = () => (
+    <div className="relative group">
+      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors">
+        <span>{profileConfig[currentProfile]?.icon}</span>
+        <span className="text-sm text-gray-300">{profileConfig[currentProfile]?.name}</span>
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div className="absolute top-full left-0 mt-1 bg-gray-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 min-w-[160px]">
+        {Object.entries(profileConfig).map(([key, config]) => (
+          <a
+            key={key}
+            href={`/${key}`}
+            className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg ${
+              currentProfile === key ? 'bg-gray-700' : ''
+            }`}
+          >
+            <span>{config.icon}</span>
+            <span className="text-sm text-gray-300">{config.name}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-gray-800 border-b border-gray-700 shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* Logo and Profile Dropdown */}
+      <header className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-sm border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🦇</span>
-              <h1 className="text-xl font-bold">Wayne Manor News</h1>
-
-              {/* Profile Dropdown */}
-              <div className="relative ml-2">
-                <button
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors"
-                  style={{ borderLeft: `3px solid ${currentProfile.color}` }}
-                >
-                  <span>{currentProfile.emoji}</span>
-                  <span className="font-medium">{currentProfile.name}'s Feed</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {showDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-gray-700 rounded-lg shadow-xl border border-gray-600 overflow-hidden">
-                    {Object.entries(PROFILES).map(([key, p]) => (
-                      <button
-                        key={key}
-                        onClick={() => handleProfileChange(key)}
-                        className={`w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-600 transition-colors ${profile === key ? 'bg-gray-600' : ''}`}
-                      >
-                        <span>{p.emoji}</span>
-                        <span>{p.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+              <span className="text-3xl">🦇</span>
+              <div>
+                <h1 className="text-xl font-bold">Wayne Manor News</h1>
+                <ProfileSelector />
               </div>
             </div>
-
-            {/* Favorites Counter */}
-            <div className="flex items-center gap-2 text-sm">
-              <span>⭐</span>
-              <span>{favorites.length}</span>
-              <span className="text-yellow-400">✨</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowSaved(!showSaved)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
+                  showSaved 
+                    ? 'bg-yellow-500 text-black' 
+                    : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
+                }`}
+              >
+                <span>⭐</span>
+                <span>{savedArticles.length}</span>
+              </button>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </button>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="mt-3">
+          {/* Search */}
+          <div className="mb-4">
             <input
               type="text"
-              placeholder={t.searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+              placeholder="Search articles..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full px-4 py-2 rounded-lg ${
+                darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
+              } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
           </div>
 
-          {/* Category Pills */}
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Category filters */}
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 selectedCategory === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  ? 'bg-blue-500 text-white'
+                  : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
               }`}
             >
-              {t.allCategories}
+              All
             </button>
-            {categories.map(cat => {
-              const info = CATEGORY_INFO[cat];
-              if (!info) return null;
+            {profileCategories.map(catKey => {
+              const cat = categoryConfig[catKey];
+              if (!cat) return null;
               return (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1 ${
-                    selectedCategory === cat
-                      ? 'text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  key={catKey}
+                  onClick={() => setSelectedCategory(catKey)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
+                    selectedCategory === catKey
+                      ? 'bg-blue-500 text-white'
+                      : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
                   }`}
-                  style={selectedCategory === cat ? { backgroundColor: info.color } : {}}
                 >
-                  <span>{info.icon}</span>
-                  <span>{getCategoryName(cat)}</span>
+                  <span>{cat.icon}</span>
+                  <span>{cat.name}</span>
                 </button>
               );
             })}
@@ -286,120 +288,166 @@ function App() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {lastUpdated && (
+          <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Last updated: {formatLastUpdated(lastUpdated)}
+          </p>
+        )}
+
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-lg text-gray-400">{t.loading}</div>
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : filteredArticles.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            {t.noArticles}
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-red-500 mb-2">Error loading news</p>
+            <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>{error}</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredArticles.map((article, index) => {
-              const catInfo = CATEGORY_INFO[article.category] || {};
-              const isFavorite = favorites.includes(article.link);
+          <>
+            {/* Trump Watch Section */}
+            {trumpArticles.length > 0 && selectedCategory === 'all' && !showSaved && (
+              <section className="mb-8">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                  Trump Watch
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {trumpArticles.slice(0, 6).map((article, idx) => (
+                    <ArticleCard 
+                      key={idx} 
+                      article={article} 
+                      darkMode={darkMode}
+                      isSaved={savedArticles.some(a => a.link === article.link)}
+                      onToggleSave={() => toggleSave(article)}
+                      formatDate={formatDate}
+                      showTrumpBadge={true}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
-              return (
-                <article
-                  key={article.link || index}
-                  className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-gray-600 transition-colors"
-                >
-                  <div className="flex">
-                    {/* Image */}
-                    {article.image && (
-                      <div className="w-32 h-32 flex-shrink-0">
-                        <img
-                          src={article.image}
-                          alt=""
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                          }}
+            {/* Articles by category */}
+            {selectedCategory === 'all' ? (
+              profileCategories.map(catKey => {
+                const catArticles = groupedArticles[catKey];
+                if (!catArticles || catArticles.length === 0) return null;
+                const cat = categoryConfig[catKey];
+                return (
+                  <section key={catKey} className="mb-8">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <span>{cat?.icon}</span>
+                      {cat?.name || catKey}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {catArticles.slice(0, 6).map((article, idx) => (
+                        <ArticleCard 
+                          key={idx} 
+                          article={article} 
+                          darkMode={darkMode}
+                          isSaved={savedArticles.some(a => a.link === article.link)}
+                          onToggleSave={() => toggleSave(article)}
+                          formatDate={formatDate}
                         />
-                      </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="flex-1 p-4">
-                      {/* Badges */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <span
-                          className="px-2 py-0.5 rounded text-xs font-medium text-white"
-                          style={{ backgroundColor: catInfo.color || '#6b7280' }}
-                        >
-                          {getCategoryName(article.category)}
-                        </span>
-                        {article.isTrumpRelated && (
-                          <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600 text-white">
-                            {t.trumpWatch}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Title */}
-                      <a
-                        href={article.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
-                        <h2 className="text-lg font-semibold text-white hover:text-blue-400 transition-colors line-clamp-2">
-                          {article.title}
-                        </h2>
-                      </a>
-
-                      {/* Description */}
-                      {article.description && (
-                        <p className="mt-1 text-sm text-gray-400 line-clamp-2">
-                          {article.description}
-                        </p>
-                      )}
-
-                      {/* Footer */}
-                      <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{article.source}</span>
-                          <span>•</span>
-                          <span>{formatDate(article.pubDate)}</span>
-                        </div>
-
-                        <button
-                          onClick={() => toggleFavorite(article.link)}
-                          className="text-lg hover:scale-110 transition-transform"
-                        >
-                          {isFavorite ? '⭐' : '☆'}
-                        </button>
-                      </div>
+                      ))}
                     </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </section>
+                );
+              })
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredArticles.map((article, idx) => (
+                  <ArticleCard 
+                    key={idx} 
+                    article={article} 
+                    darkMode={darkMode}
+                    isSaved={savedArticles.some(a => a.link === article.link)}
+                    onToggleSave={() => toggleSave(article)}
+                    formatDate={formatDate}
+                  />
+                ))}
+              </div>
+            )}
+
+            {filteredArticles.length === 0 && (
+              <div className="text-center py-20">
+                <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                  {showSaved ? 'No saved articles yet' : 'No articles found'}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-700 py-4 mt-8">
-        <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500">
-          <p>
-            {t.lastUpdated}: {formatDate(lastUpdated)}
-          </p>
-          <p className="mt-1">🦇 Wayne Manor News Hub</p>
-        </div>
-      </footer>
-
-      {/* Click outside to close dropdown */}
-      {showDropdown && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setShowDropdown(false)}
-        />
-      )}
     </div>
+  );
+}
+
+// Article Card Component
+function ArticleCard({ article, darkMode, isSaved, onToggleSave, formatDate, showTrumpBadge }) {
+  const cat = categoryConfig[article.category];
+  
+  return (
+    <a
+      href={article.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`block rounded-xl overflow-hidden transition-transform hover:scale-[1.02] ${
+        darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:shadow-lg'
+      } ${article.isTrumpRelated ? 'ring-2 ring-red-500/50' : ''}`}
+    >
+      <div className="relative">
+        <img
+          src={article.image}
+          alt=""
+          className="w-full h-48 object-cover"
+          onError={(e) => {
+            e.target.src = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=250&fit=crop';
+          }}
+        />
+        <div className="absolute top-2 left-2 flex gap-2">
+          <span className={`px-2 py-1 rounded text-xs font-medium ${
+            darkMode ? 'bg-blue-500/90' : 'bg-blue-500'
+          } text-white`}>
+            {cat?.icon} {cat?.name || article.category}
+          </span>
+          {(showTrumpBadge || article.isTrumpRelated) && (
+            <span className="px-2 py-1 rounded text-xs font-medium bg-red-500 text-white">
+              🔴 TRUMP
+            </span>
+          )}
+        </div>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleSave();
+          }}
+          className={`absolute top-2 right-2 p-2 rounded-full transition-colors ${
+            isSaved 
+              ? 'bg-yellow-500 text-black' 
+              : darkMode ? 'bg-gray-900/70 hover:bg-gray-900' : 'bg-white/70 hover:bg-white'
+          }`}
+        >
+          {isSaved ? '⭐' : '☆'}
+        </button>
+      </div>
+      <div className="p-4">
+        <h3 className="font-semibold mb-2 line-clamp-2">{article.title}</h3>
+        {article.description && (
+          <p className={`text-sm mb-3 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {article.description}
+          </p>
+        )}
+        <div className={`flex items-center justify-between text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+          <span>{article.source}</span>
+          <span>{formatDate(article.pubDate)}</span>
+        </div>
+      </div>
+    </a>
   );
 }
 
