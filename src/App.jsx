@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 
 const API_BASE = 'https://jutalo26.com';
 
-// Category configuration with icons and display names
+// Category configuration with icons and display names (English and Spanish)
 const categoryConfig = {
-  politics: { name: 'Politics', icon: '🏛️' },
-  worldNews: { name: 'World News', icon: '🌍' },
+  politics: { name: 'Politics', nameEs: 'Política', icon: '🏛️' },
+  worldNews: { name: 'World News', nameEs: 'Noticias Mundiales', icon: '🌍' },
+  honduras: { name: 'Honduras', nameEs: 'Honduras', icon: '🇭🇳' },
   trending: { name: 'Trending Videos', icon: '📱' },
   aiTech: { name: 'AI & Tech', icon: '🤖' },
   smartHome: { name: 'Smart Home', icon: '🏠' },
@@ -57,6 +58,37 @@ const profileConfig = {
     name: "Jordan's Feed",
     icon: '🎮',
     categories: ['politics', 'worldNews', 'soccer', 'gaming', 'youtube', 'soccerYT', 'streetwear', 'trending']
+  },
+  felix: {
+    name: "Felix's Feed",
+    nameEs: "Noticias de Felix",
+    icon: '🇭🇳',
+    lang: 'es',
+    categories: ['politics', 'worldNews', 'honduras']
+  }
+};
+
+// Translations for UI elements
+const translations = {
+  en: {
+    siteTitle: 'Wayne Manor News',
+    searchPlaceholder: 'Search articles...',
+    all: 'All',
+    lastUpdated: 'Last updated',
+    noSavedArticles: 'No saved articles yet',
+    noArticlesFound: 'No articles found',
+    errorLoading: 'Error loading news',
+    trumpWatch: 'Trump Watch'
+  },
+  es: {
+    siteTitle: 'Noticias Wayne Manor',
+    searchPlaceholder: 'Buscar artículos...',
+    all: 'Todos',
+    lastUpdated: 'Última actualización',
+    noSavedArticles: 'No hay artículos guardados',
+    noArticlesFound: 'No se encontraron artículos',
+    errorLoading: 'Error al cargar noticias',
+    trumpWatch: 'Alerta Trump'
   }
 };
 
@@ -132,6 +164,10 @@ function App() {
   // Get categories for current profile
   const profileCategories = profileConfig[currentProfile]?.categories || [];
 
+  // Get language for current profile
+  const lang = profileConfig[currentProfile]?.lang || 'en';
+  const t = translations[lang];
+
   // Filter articles
   const filteredArticles = (showSaved ? savedArticles : articles).filter(article => {
     const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
@@ -164,15 +200,17 @@ function App() {
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+    const locale = lang === 'es' ? 'es-HN' : 'en-US';
+    return date.toLocaleDateString(locale, { month: 'numeric', day: 'numeric', year: 'numeric' });
   };
 
   const formatLastUpdated = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleString('en-US', { 
-      month: 'numeric', 
-      day: 'numeric', 
+    const locale = lang === 'es' ? 'es-HN' : 'en-US';
+    return date.toLocaleString(locale, {
+      month: 'numeric',
+      day: 'numeric',
       year: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
@@ -180,12 +218,30 @@ function App() {
     });
   };
 
+  // Get category name based on language
+  const getCategoryName = (catKey) => {
+    const cat = categoryConfig[catKey];
+    if (!cat) return catKey;
+    return lang === 'es' && cat.nameEs ? cat.nameEs : cat.name;
+  };
+
+  // Get profile display name based on language
+  const getProfileName = (key) => {
+    const config = profileConfig[key];
+    if (!config) return key;
+    // Show Spanish name for Felix when viewing Felix's feed
+    if (key === currentProfile && config.lang === 'es' && config.nameEs) {
+      return config.nameEs;
+    }
+    return config.name;
+  };
+
   // Profile selector dropdown
   const ProfileSelector = () => (
     <div className="relative group">
       <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors">
         <span>{profileConfig[currentProfile]?.icon}</span>
-        <span className="text-sm text-gray-300">{profileConfig[currentProfile]?.name}</span>
+        <span className="text-sm text-gray-300">{getProfileName(currentProfile)}</span>
         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -216,7 +272,7 @@ function App() {
             <div className="flex items-center gap-3">
               <span className="text-3xl">🦇</span>
               <div>
-                <h1 className="text-xl font-bold">Wayne Manor News</h1>
+                <h1 className="text-xl font-bold">{t.siteTitle}</h1>
                 <ProfileSelector />
               </div>
             </div>
@@ -245,7 +301,7 @@ function App() {
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search articles..."
+              placeholder={t.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full px-4 py-2 rounded-lg ${
@@ -264,7 +320,7 @@ function App() {
                   : darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
               }`}
             >
-              All
+              {t.all}
             </button>
             {profileCategories.map(catKey => {
               const cat = categoryConfig[catKey];
@@ -280,7 +336,7 @@ function App() {
                   }`}
                 >
                   <span>{cat.icon}</span>
-                  <span>{cat.name}</span>
+                  <span>{getCategoryName(catKey)}</span>
                 </button>
               );
             })}
@@ -292,7 +348,7 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         {lastUpdated && (
           <p className={`text-sm mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Last updated: {formatLastUpdated(lastUpdated)}
+            {t.lastUpdated}: {formatLastUpdated(lastUpdated)}
           </p>
         )}
 
@@ -302,7 +358,7 @@ function App() {
           </div>
         ) : error ? (
           <div className="text-center py-20">
-            <p className="text-red-500 mb-2">Error loading news</p>
+            <p className="text-red-500 mb-2">{t.errorLoading}</p>
             <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>{error}</p>
           </div>
         ) : (
@@ -312,18 +368,19 @@ function App() {
               <section className="mb-8">
                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-                  Trump Watch
+                  {t.trumpWatch}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {trumpArticles.slice(0, 6).map((article, idx) => (
-                    <ArticleCard 
-                      key={idx} 
-                      article={article} 
+                    <ArticleCard
+                      key={idx}
+                      article={article}
                       darkMode={darkMode}
                       isSaved={savedArticles.some(a => a.link === article.link)}
                       onToggleSave={() => toggleSave(article)}
                       formatDate={formatDate}
                       showTrumpBadge={true}
+                      lang={lang}
                     />
                   ))}
                 </div>
@@ -340,17 +397,18 @@ function App() {
                   <section key={catKey} className="mb-8">
                     <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                       <span>{cat?.icon}</span>
-                      {cat?.name || catKey}
+                      {getCategoryName(catKey)}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {catArticles.slice(0, 6).map((article, idx) => (
-                        <ArticleCard 
-                          key={idx} 
-                          article={article} 
+                        <ArticleCard
+                          key={idx}
+                          article={article}
                           darkMode={darkMode}
                           isSaved={savedArticles.some(a => a.link === article.link)}
                           onToggleSave={() => toggleSave(article)}
                           formatDate={formatDate}
+                          lang={lang}
                         />
                       ))}
                     </div>
@@ -360,13 +418,14 @@ function App() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredArticles.map((article, idx) => (
-                  <ArticleCard 
-                    key={idx} 
-                    article={article} 
+                  <ArticleCard
+                    key={idx}
+                    article={article}
                     darkMode={darkMode}
                     isSaved={savedArticles.some(a => a.link === article.link)}
                     onToggleSave={() => toggleSave(article)}
                     formatDate={formatDate}
+                    lang={lang}
                   />
                 ))}
               </div>
@@ -375,7 +434,7 @@ function App() {
             {filteredArticles.length === 0 && (
               <div className="text-center py-20">
                 <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                  {showSaved ? 'No saved articles yet' : 'No articles found'}
+                  {showSaved ? t.noSavedArticles : t.noArticlesFound}
                 </p>
               </div>
             )}
@@ -387,9 +446,11 @@ function App() {
 }
 
 // Article Card Component
-function ArticleCard({ article, darkMode, isSaved, onToggleSave, formatDate, showTrumpBadge }) {
+function ArticleCard({ article, darkMode, isSaved, onToggleSave, formatDate, showTrumpBadge, lang = 'en' }) {
   const cat = categoryConfig[article.category];
-  
+  const catName = lang === 'es' && cat?.nameEs ? cat.nameEs : (cat?.name || article.category);
+  const trumpLabel = lang === 'es' ? 'TRUMP' : 'TRUMP';
+
   return (
     <a
       href={article.link}
@@ -412,11 +473,11 @@ function ArticleCard({ article, darkMode, isSaved, onToggleSave, formatDate, sho
           <span className={`px-2 py-1 rounded text-xs font-medium ${
             darkMode ? 'bg-blue-500/90' : 'bg-blue-500'
           } text-white`}>
-            {cat?.icon} {cat?.name || article.category}
+            {cat?.icon} {catName}
           </span>
           {(showTrumpBadge || article.isTrumpRelated) && (
             <span className="px-2 py-1 rounded text-xs font-medium bg-red-500 text-white">
-              🔴 TRUMP
+              🔴 {trumpLabel}
             </span>
           )}
         </div>
