@@ -2,47 +2,86 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const PROFILES = {
-  jae: { name: 'Jae', emoji: '👨‍💻', color: '#2563eb' },
-  teelo: { name: 'Teelo', emoji: '👩', color: '#ec4899' },
-  jayden: { name: 'Jayden', emoji: '🎮', color: '#8b5cf6' },
-  jordan: { name: 'Jordan', emoji: '⚽', color: '#10b981' },
-  felix: { name: 'Felix', emoji: '🇭🇳', color: '#00bce4' }
+  jae: { name: 'Jae', emoji: '👨‍💻', color: '#2563eb', lang: 'en' },
+  teelo: { name: 'Teelo', emoji: '👩', color: '#ec4899', lang: 'en' },
+  jayden: { name: 'Jayden', emoji: '🎮', color: '#8b5cf6', lang: 'en' },
+  jordan: { name: 'Jordan', emoji: '⚽', color: '#10b981', lang: 'en' },
+  felix: { name: 'Felix', emoji: '🇭🇳', color: '#00bce4', lang: 'es' }
+};
+
+// Spanish translations for UI elements
+const TRANSLATIONS = {
+  en: {
+    newsHub: 'Wayne Manor News Hub',
+    search: 'Search articles...',
+    articles: 'articles',
+    trumpWatch: 'Trump Watch',
+    lastUpdated: 'Last updated',
+    failedToLoad: 'Failed to load news',
+    failedToFetch: 'Failed to fetch',
+    tryAgain: 'Try Again',
+    readFullArticle: 'Read Full Article'
+  },
+  es: {
+    newsHub: 'Centro de Noticias Wayne Manor',
+    search: 'Buscar artículos...',
+    articles: 'artículos',
+    trumpWatch: 'Alerta Trump',
+    lastUpdated: 'Última actualización',
+    failedToLoad: 'Error al cargar noticias',
+    failedToFetch: 'Error de conexión',
+    tryAgain: 'Intentar de nuevo',
+    readFullArticle: 'Leer artículo completo'
+  }
 };
 
 const CATEGORY_INFO = {
-  trumpWatch: { name: 'Trump Watch', emoji: '🔴', color: '#dc2626' },
-  politics: { name: 'Politics', emoji: '🏛️', color: '#6b7280' },
-  worldNews: { name: 'World News', emoji: '🌍', color: '#059669' },
-  honduras: { name: 'Honduras', emoji: '🇭🇳', color: '#00bce4' },
-  mets: { name: 'NY Mets', emoji: '⚾', color: '#002d72' },
-  knicks: { name: 'NY Knicks', emoji: '🏀', color: '#f58426' },
-  soccer: { name: 'Soccer', emoji: '⚽', color: '#10b981' },
-  aiTech: { name: 'AI & Tech', emoji: '🤖', color: '#3b82f6' },
-  smartHome: { name: 'Smart Home', emoji: '🏠', color: '#14b8a6' },
-  homelab: { name: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
-  networking: { name: 'Networking', emoji: '📡', color: '#8b5cf6' },
-  finance: { name: 'Finance', emoji: '📈', color: '#059669' },
-  tesla: { name: 'Tesla & EVs', emoji: '🚗', color: '#e31937' },
-  trueCrime: { name: 'True Crime', emoji: '🔍', color: '#7c3aed' },
-  parenting: { name: 'Parenting', emoji: '👨‍👩‍👧‍👦', color: '#ec4899' },
-  recipes: { name: 'Recipes', emoji: '🍳', color: '#f97316' },
-  health: { name: 'Health', emoji: '💪', color: '#10b981' },
-  travel: { name: 'Travel', emoji: '✈️', color: '#0ea5e9' },
-  fashion: { name: 'Fashion & Beauty', emoji: '👗', color: '#ec4899' },
-  homeDecor: { name: 'Home Decor', emoji: '🏡', color: '#a855f7' },
-  shopping: { name: 'Deals & Shopping', emoji: '🛍️', color: '#ef4444' },
-  entertainment: { name: 'Entertainment', emoji: '⭐', color: '#eab308' },
-  animation: { name: 'Animation', emoji: '🎬', color: '#6366f1' },
-  movies: { name: 'Movies', emoji: '🎬', color: '#dc2626' },
-  artSchool: { name: 'Art & Film School', emoji: '🎨', color: '#f472b6' },
-  music: { name: 'Music', emoji: '🎸', color: '#8b5cf6' },
-  comics: { name: 'Comics', emoji: '💥', color: '#ef4444' },
-  streetwear: { name: 'Streetwear', emoji: '👟', color: '#171717' },
-  bjj: { name: 'BJJ & MMA', emoji: '🥋', color: '#1e40af' },
-  gaming: { name: 'Gaming', emoji: '🎮', color: '#7c3aed' },
-  roblox: { name: 'Roblox', emoji: '🎲', color: '#e31937' },
-  soccerSkills: { name: 'Soccer Skills', emoji: '⚽', color: '#16a34a' },
-  trending: { name: 'Trending', emoji: '📱', color: '#f43f5e' }
+  // Shared categories
+  trumpWatch: { name: 'Trump Watch', nameEs: 'Alerta Trump', emoji: '🔴', color: '#dc2626' },
+  politics: { name: 'Politics', nameEs: 'Política', emoji: '🏛️', color: '#6b7280' },
+  worldNews: { name: 'World News', nameEs: 'Noticias Mundiales', emoji: '🌍', color: '#059669' },
+  trending: { name: 'Trending', nameEs: 'Tendencias', emoji: '📈', color: '#f59e0b' },
+
+  // Felix specific
+  honduras: { name: 'Honduras', nameEs: 'Honduras', emoji: '🇭🇳', color: '#00bce4' },
+
+  // Jae specific
+  aiTech: { name: 'AI & Tech', nameEs: 'IA y Tecnología', emoji: '🤖', color: '#3b82f6' },
+  smartHome: { name: 'Smart Home', nameEs: 'Casa Inteligente', emoji: '🏠', color: '#14b8a6' },
+  homelab: { name: 'Homelab', nameEs: 'Homelab', emoji: '🖥️', color: '#f59e0b' },
+  networking: { name: 'Networking', nameEs: 'Redes', emoji: '🌐', color: '#6366f1' },
+  mets: { name: 'NY Mets', nameEs: 'NY Mets', emoji: '⚾', color: '#f97316' },
+  knicks: { name: 'NY Knicks', nameEs: 'NY Knicks', emoji: '🏀', color: '#f97316' },
+  finance: { name: 'Finance', nameEs: 'Finanzas', emoji: '💰', color: '#10b981' },
+  tesla: { name: 'Tesla & EVs', nameEs: 'Tesla y Eléctricos', emoji: '🚗', color: '#ef4444' },
+
+  // Teelo specific
+  trueCrime: { name: 'True Crime', nameEs: 'Crimen Real', emoji: '🔍', color: '#7c3aed' },
+  parenting: { name: 'Parenting', nameEs: 'Crianza', emoji: '👶', color: '#ec4899' },
+  recipes: { name: 'Recipes', nameEs: 'Recetas', emoji: '🍳', color: '#f59e0b' },
+  health: { name: 'Health', nameEs: 'Salud', emoji: '💪', color: '#10b981' },
+  travel: { name: 'Travel', nameEs: 'Viajes', emoji: '✈️', color: '#0ea5e9' },
+  fashion: { name: 'Fashion', nameEs: 'Moda', emoji: '👗', color: '#ec4899' },
+  homeDecor: { name: 'Home Decor', nameEs: 'Decoración', emoji: '🛋️', color: '#8b5cf6' },
+  shopping: { name: 'Shopping', nameEs: 'Compras', emoji: '🛍️', color: '#f43f5e' },
+  entertainment: { name: 'Entertainment', nameEs: 'Entretenimiento', emoji: '🎬', color: '#a855f7' },
+
+  // Jayden specific
+  animation: { name: 'Animation', nameEs: 'Animación', emoji: '🎨', color: '#f43f5e' },
+  artSchool: { name: 'Art School', nameEs: 'Escuela de Arte', emoji: '🖌️', color: '#ec4899' },
+  music: { name: 'Metal/Rock', nameEs: 'Metal/Rock', emoji: '🎸', color: '#1f2937' },
+  comics: { name: 'Comics', nameEs: 'Cómics', emoji: '💥', color: '#eab308' },
+  bjj: { name: 'BJJ/MMA', nameEs: 'BJJ/MMA', emoji: '🥋', color: '#dc2626' },
+
+  // Jordan specific
+  gaming: { name: 'Gaming', nameEs: 'Videojuegos', emoji: '🎮', color: '#8b5cf6' },
+  roblox: { name: 'Roblox', nameEs: 'Roblox', emoji: '🧱', color: '#ef4444' },
+  soccerSkills: { name: 'Soccer Skills', nameEs: 'Técnica de Fútbol', emoji: '⚽', color: '#10b981' },
+
+  // Shared between some profiles
+  soccer: { name: 'Soccer', nameEs: 'Fútbol', emoji: '⚽', color: '#10b981' },
+  movies: { name: 'Movies', nameEs: 'Películas', emoji: '🎬', color: '#6366f1' },
+  streetwear: { name: 'Streetwear', nameEs: 'Moda Urbana', emoji: '👟', color: '#1f2937' }
 };
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=250&fit=crop';
@@ -63,13 +102,8 @@ function ArticleCard({ article, onClick }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={() => setImgError(true)}
         />
-        {article.isTrumpRelated && (
-          <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1">
-            🔴 TRUMP
-          </div>
-        )}
         <div
-          className="absolute bottom-2 right-2 px-2 py-1 rounded-md text-xs font-semibold text-white"
+          className="absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium text-white"
           style={{ backgroundColor: categoryInfo.color }}
         >
           {categoryInfo.emoji} {categoryInfo.name}
@@ -91,8 +125,9 @@ function ArticleCard({ article, onClick }) {
   );
 }
 
-function TrumpCard({ article, onClick }) {
+function TrumpCard({ article, onClick, lang = 'en' }) {
   const [imgError, setImgError] = useState(false);
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
   return (
     <div
@@ -110,7 +145,7 @@ function TrumpCard({ article, onClick }) {
         </div>
         <div className="md:w-3/5 p-5 text-white">
           <div className="flex items-center gap-2 mb-3">
-            <span className="bg-white text-red-600 px-2 py-1 rounded text-xs font-bold">🔴 TRUMP WATCH</span>
+            <span className="bg-white text-red-600 px-2 py-1 rounded text-xs font-bold">🔴 {t.trumpWatch.toUpperCase()}</span>
           </div>
           <h3 className="font-bold text-xl mb-2 line-clamp-2 group-hover:underline">
             {article.title}
@@ -120,7 +155,7 @@ function TrumpCard({ article, onClick }) {
           </p>
           <div className="flex justify-between items-center text-xs text-red-200">
             <span className="font-medium">{article.source}</span>
-            <span>{new Date(article.pubDate).toLocaleDateString()}</span>
+            <span>{new Date(article.pubDate).toLocaleDateString(lang === 'es' ? 'es-HN' : 'en-US')}</span>
           </div>
         </div>
       </div>
@@ -128,8 +163,10 @@ function TrumpCard({ article, onClick }) {
   );
 }
 
-function CategorySection({ category, articles, onArticleClick }) {
-  const categoryInfo = CATEGORY_INFO[category] || { name: category, emoji: '📰', color: '#6b7280' };
+function CategorySection({ category, articles, onArticleClick, lang = 'en' }) {
+  const categoryInfo = CATEGORY_INFO[category] || { name: category, nameEs: category, emoji: '📰', color: '#6b7280' };
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const categoryName = lang === 'es' && categoryInfo.nameEs ? categoryInfo.nameEs : categoryInfo.name;
 
   if (!articles || articles.length === 0) return null;
 
@@ -143,10 +180,10 @@ function CategorySection({ category, articles, onArticleClick }) {
           {categoryInfo.emoji}
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {categoryInfo.name}
+          {categoryName}
         </h2>
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {articles.length} articles
+          {articles.length} {t.articles}
         </span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -179,13 +216,21 @@ function ProfileSwitcher({ currentProfile }) {
   );
 }
 
-function ArticleModal({ article, onClose }) {
+function ArticleModal({ article, onClose, lang = 'en' }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+
   if (!article) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="relative h-64">
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="relative h-64 overflow-hidden">
           <img
             src={article.image || DEFAULT_IMAGE}
             alt={article.title}
@@ -207,7 +252,7 @@ function ArticleModal({ article, onClose }) {
           </p>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              {article.source} • {new Date(article.pubDate).toLocaleDateString()}
+              {article.source} • {new Date(article.pubDate).toLocaleDateString(lang === 'es' ? 'es-HN' : 'en-US')}
             </span>
             <a
               href={article.link}
@@ -215,7 +260,7 @@ function ArticleModal({ article, onClose }) {
               rel="noopener noreferrer"
               className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition"
             >
-              Read Full Article →
+              {t.readFullArticle} →
             </a>
           </div>
         </div>
@@ -269,6 +314,8 @@ function App() {
   }, [profile, navigate]);
 
   const profileInfo = PROFILES[profile] || PROFILES.jae;
+  const lang = profileInfo.lang || 'en';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
   const filteredArticles = data?.articles?.filter(article => {
     if (!searchQuery) return true;
@@ -306,10 +353,10 @@ function App() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {profileInfo.name}'s News
+                  {lang === 'es' ? `Noticias de ${profileInfo.name}` : `${profileInfo.name}'s News`}
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Wayne Manor News Hub
+                  {t.newsHub}
                 </p>
               </div>
             </div>
@@ -318,7 +365,7 @@ function App() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search articles..."
+                  placeholder={t.search}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -351,13 +398,13 @@ function App() {
 
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
-            <p className="text-red-600 dark:text-red-400 font-medium">Failed to load news</p>
-            <p className="text-red-500 dark:text-red-300 text-sm mt-1">{error}</p>
+            <p className="text-red-600 dark:text-red-400 font-medium">{t.failedToLoad}</p>
+            <p className="text-red-500 dark:text-red-300 text-sm mt-1">{t.failedToFetch}</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
-              Try Again
+              {t.tryAgain}
             </button>
           </div>
         )}
@@ -372,15 +419,15 @@ function App() {
                     🔴
                   </div>
                   <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
-                    Trump Watch
+                    {t.trumpWatch}
                   </h2>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {trumpArticles.length} articles
+                    {trumpArticles.length} {t.articles}
                   </span>
                 </div>
                 <div className="space-y-4">
                   {trumpArticles.slice(0, 3).map((article, idx) => (
-                    <TrumpCard key={idx} article={article} onClick={setSelectedArticle} />
+                    <TrumpCard key={idx} article={article} onClick={setSelectedArticle} lang={lang} />
                   ))}
                 </div>
               </div>
@@ -393,13 +440,14 @@ function App() {
                 category={category}
                 articles={articlesByCategory[category]}
                 onArticleClick={setSelectedArticle}
+                lang={lang}
               />
             ))}
 
             {/* Last Updated */}
             {data.generatedAt && (
               <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8 pb-8">
-                Last updated: {new Date(data.generatedAt).toLocaleString()}
+                {t.lastUpdated}: {new Date(data.generatedAt).toLocaleString(lang === 'es' ? 'es-HN' : 'en-US')}
               </div>
             )}
           </>
@@ -407,7 +455,7 @@ function App() {
       </main>
 
       {/* Article Modal */}
-      <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
+      <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} lang={lang} />
     </div>
   );
 }
