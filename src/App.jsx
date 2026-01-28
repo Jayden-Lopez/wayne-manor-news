@@ -37,6 +37,14 @@ const categoryConfig = {
   soccerYT: { name: 'Soccer Training', icon: '⚽' }
 };
 
+// Category mapping - map backend categories to display categories
+// Priority order within sports: mets (1), knicks (2), soccer (3)
+const categoryMapping = {
+  mets: { displayCategory: 'sports', priority: 1 },
+  knicks: { displayCategory: 'sports', priority: 2 },
+  soccer: { displayCategory: 'sports', priority: 3 }
+};
+
 // Profile configurations
 const profileConfig = {
   jae: {
@@ -123,6 +131,22 @@ function App() {
     }
   }, [currentProfile]);
 
+  // Transform articles: map categories and add priority for sorting
+  const transformArticles = (articlesArray) => {
+    return articlesArray.map(article => {
+      const mapping = categoryMapping[article.category];
+      if (mapping) {
+        return {
+          ...article,
+          sourceCategory: article.category, // Keep original category (mets, knicks, soccer)
+          category: mapping.displayCategory, // Map to display category (sports)
+          sportsPriority: mapping.priority   // For sorting within sports
+        };
+      }
+      return { ...article, sportsPriority: 999 }; // Non-sports get low priority
+    });
+  };
+
   // Fetch news data
   useEffect(() => {
     const fetchNews = async () => {
@@ -131,8 +155,8 @@ function App() {
         const response = await fetch(`${API_BASE}/api/news/${currentProfile}`);
         if (!response.ok) throw new Error('Failed to fetch news');
         const data = await response.json();
-        
-        setArticles(data.articles || []);
+
+        setArticles(transformArticles(data.articles || []));
         setTrumpWatch(data.trumpWatch || []);
         setLastUpdated(data.generatedAt);
         setError(null);
@@ -143,7 +167,7 @@ function App() {
           const fallback = await fetch(`${API_BASE}/api/news`);
           const data = await fallback.json();
           if (data.feedsByProfile && data.feedsByProfile[currentProfile]) {
-            setArticles(data.feedsByProfile[currentProfile]);
+            setArticles(transformArticles(data.feedsByProfile[currentProfile]));
             setTrumpWatch(data.trumpWatch || []);
             setLastUpdated(data.generatedAt);
             setError(null);
@@ -189,13 +213,25 @@ function App() {
   // Group articles by category for display
   const groupedArticles = {};
   const trumpArticles = filteredArticles.filter(a => a.isTrumpRelated);
-  
+
   filteredArticles.forEach(article => {
     if (!groupedArticles[article.category]) {
       groupedArticles[article.category] = [];
     }
     groupedArticles[article.category].push(article);
   });
+
+  // Sort sports articles by priority (Mets first, then Knicks, then Soccer)
+  if (groupedArticles['sports']) {
+    groupedArticles['sports'].sort((a, b) => {
+      // First by priority (Mets=1, Knicks=2, Soccer=3)
+      if (a.sportsPriority !== b.sportsPriority) {
+        return a.sportsPriority - b.sportsPriority;
+      }
+      // Then by date (newest first)
+      return new Date(b.pubDate) - new Date(a.pubDate);
+    });
+  }
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
