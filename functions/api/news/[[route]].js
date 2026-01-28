@@ -33,7 +33,7 @@ export async function onRequest(context) {
     }
 
     // Route: /api/news/:profile - Profile-specific data
-    const validProfiles = ['jae', 'teelo', 'jayden', 'jordan'];
+    const validProfiles = ['jae', 'teelo', 'jayden', 'jordan', 'felix'];
     const profile = route.toLowerCase();
     
     if (validProfiles.includes(profile)) {
@@ -64,7 +64,7 @@ export async function onRequest(context) {
     }
 
     // Unknown route
-    return new Response(JSON.stringify({ error: 'Unknown route', validRoutes: ['/api/news', '/api/news/jae', '/api/news/teelo', '/api/news/jayden', '/api/news/jordan'] }), {
+    return new Response(JSON.stringify({ error: 'Unknown route', validRoutes: ['/api/news', '/api/news/jae', '/api/news/teelo', '/api/news/jayden', '/api/news/jordan', '/api/news/felix'] }), {
       status: 404,
       headers: corsHeaders
     });
