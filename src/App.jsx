@@ -236,32 +236,44 @@ function App() {
     return config.name;
   };
 
-  // Profile selector dropdown
-  const ProfileSelector = () => (
-    <div className="relative group">
-      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors">
-        <span>{profileConfig[currentProfile]?.icon}</span>
-        <span className="text-sm text-gray-300">{getProfileName(currentProfile)}</span>
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      <div className="absolute top-full left-0 mt-1 bg-gray-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 min-w-[160px]">
-        {Object.entries(profileConfig).map(([key, config]) => (
-          <a
-            key={key}
-            href={`/${key}`}
-            className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg ${
-              currentProfile === key ? 'bg-gray-700' : ''
-            }`}
-          >
-            <span>{config.icon}</span>
-            <span className="text-sm text-gray-300">{config.name}</span>
-          </a>
-        ))}
+  // Profile selector - dropdown only for Jae's profile
+  const ProfileSelector = () => {
+    // Only show dropdown for Jae's profile
+    if (currentProfile !== 'jae') {
+      return (
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          <span>{profileConfig[currentProfile]?.icon}</span>
+          <span className="text-sm text-gray-300">{getProfileName(currentProfile)}</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative group">
+        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-colors">
+          <span>{profileConfig[currentProfile]?.icon}</span>
+          <span className="text-sm text-gray-300">{getProfileName(currentProfile)}</span>
+          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div className="absolute top-full left-0 mt-1 bg-gray-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 min-w-[160px]">
+          {Object.entries(profileConfig).map(([key, config]) => (
+            <a
+              key={key}
+              href={`/${key}`}
+              className={`flex items-center gap-2 px-4 py-2 hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg ${
+                currentProfile === key ? 'bg-gray-700' : ''
+              }`}
+            >
+              <span>{config.icon}</span>
+              <span className="text-sm text-gray-300">{config.name}</span>
+            </a>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
